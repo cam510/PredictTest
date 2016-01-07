@@ -15,7 +15,7 @@ public class PackageVO implements Serializable, Comparable<PackageVO> {
 	public String dataDir = "";
 	public int targetSdkVersion = 0;
 	
-	public String category = "";
+	public String category = "unknow";
 	public boolean systemApp = false;
 	
 	public long size = 0;

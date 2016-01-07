@@ -1,12 +1,17 @@
 package com.example.cam.categorytest;
 
 import android.content.Context;
-import android.support.v7.app.AppCompatActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.cam.categoryUtil.PackageUtil;
 import com.example.cam.categoryUtil.PackageVO;
+import com.example.cam.commonUtils.CategroyUtil;
 import com.example.cam.httpUtil.AsyncHttpClient;
 import com.example.cam.httpUtil.AsyncHttpRequest;
 import com.example.cam.httpUtil.BaseJsonHttpResponseHandler;
@@ -14,6 +19,7 @@ import com.example.cam.httpUtil.RequestHandle;
 import com.example.cam.httpUtil.ResponseHandlerInterface;
 import com.example.cam.httpUtil.SampleInterface;
 import com.example.cam.httpUtil.SampleJSON;
+import com.example.cam.server.AppCategroyServer;
 
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -33,11 +39,12 @@ import cz.msebera.android.httpclient.protocol.HttpContext;
 
 public class CategroyMain extends AppCompatActivity implements SampleInterface {
 
+    private int mGlobalIndex = 0;
     private String LOG_TAG = "CategroyMain";
 
-    private ArrayList<PackageVO> packages;
+    private ArrayList<PackageVO> mAppList;
+    private Handler mHandler;
     private final List<RequestHandle> requestHandles = new LinkedList<RequestHandle>();
-    private ResponseHandlerInterface responseHandler;
 
     private AsyncHttpClient asyncHttpClient = new AsyncHttpClient() {
 
@@ -54,13 +61,21 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_categroy_main);
-        packages = ((ArrayList<PackageVO>) PackageUtil.getLaunchableApps(ctx(), true));
+        mAppList = ((ArrayList<PackageVO>) PackageUtil.getLaunchableApps(ctx(), true));
+        mHandler = new Handler() {
 
-        for (PackageVO p : packages) {
-            System.out.println("p.name " + p.appname + " p.package " + p.pname);
-        }
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                if (mGlobalIndex < mAppList.size()) {
+                    mGlobalIndex++;
+                    onRunButtonPressed();
+                }
+            }
+        };
+//        onRunButtonPressed();
+        this.startService(new Intent(this, AppCategroyServer.class));
 
-        onRunButtonPressed();
     }
 
     private Context ctx() {
@@ -81,11 +96,16 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
 
     @Override
     public void onRunButtonPressed() {
-        addRequestHandle(executeSample(getAsyncHttpClient(),
-                "https://42matters.com/api/1/apps/lookup.json?p=com.tencent.mobileqq&access_token=ec82419c1335a1605952ea4d8f9e1ee0961d27f8",
-                getRequestHeaders(),
-                getRequestEntity(),
-                getResponseHandler()));
+        System.out.println("mGlobalIndex -> " + mGlobalIndex);
+        if (mGlobalIndex == mAppList.size()) {
+            showAllCategroy();
+        } else {
+            addRequestHandle(executeSample(getAsyncHttpClient(),
+                    CategroyUtil._42_Matter_Heread + mAppList.get(mGlobalIndex).pname + CategroyUtil.get_42_Matter_End,
+                    getRequestHeaders(),
+                    getRequestEntity(),
+                    getResponseHandler()));
+        }
     }
 
     @Override
@@ -133,41 +153,72 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
 
             @Override
             public void onStart() {
-
             }
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, String rawJsonResponse, SampleJSON response) {
-//                debugHeaders(LOG_TAG, headers);
-//                debugStatusCode(LOG_TAG, statusCode);
-//                if (response != null) {
-//                    debugResponse(LOG_TAG, rawJsonResponse);
-//                }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, String rawJsonData, SampleJSON errorResponse) {
-//                debugHeaders(LOG_TAG, headers);
-//                debugStatusCode(LOG_TAG, statusCode);
-//                debugThrowable(LOG_TAG, throwable);
-//                if (errorResponse != null) {
-//                    debugResponse(LOG_TAG, rawJsonData);
-//                }
-                System.out.println("no connet --> resultcode " + statusCode);
+                if (statusCode == 0) {
+
+                } else if (statusCode == 404) {
+
+                } else {
+                    System.out.println("rawJson Data -> " + rawJsonData);
+                    Toast.makeText(CategroyMain.this, "StatusCode is " + statusCode, Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
             protected SampleJSON parseResponse(String rawJsonData, boolean isFailure) throws Throwable {
-//                System.out.println("raw Json Data -> " + rawJsonData);
-//                JSONTokener jsonParser = new JSONTokener(rawJsonData);
-//                JSONObject jsonOb = (JSONObject) jsonParser.nextValue();
-//                System.out.println("hst category -> " + jsonOb.has("category"));
-//                System.out.println("is Failure ? -> " + isFailure);
-//                return new ObjectMapper().readValues(new JsonFactory().createParser(rawJsonData), SampleJSON.class).next();
+                System.out.println("parseResponse " + rawJsonData);
+                if (!isFailure) {
+                    JSONTokener jsonParser = new JSONTokener(rawJsonData);
+                    JSONObject jsonOb = (JSONObject) jsonParser.nextValue();
+                    if (jsonOb.has("category")) {
+                        mAppList.get(mGlobalIndex).category = (String) jsonOb.get("category");
+                    }
+                }
+                mHandler.sendEmptyMessage(0);
                 return null;
             }
 
         };
+    }
+
+    private void showAllCategroy() {
+        for (PackageVO p : mAppList) {
+            System.out.println("p.name " + p.appname + " p.package " + p.pname + " p.category " + p.category);
+        }
+    }
+
+    public List<Header> getRequestHeadersList() {
+        List<Header> headers = new ArrayList<Header>();
+//        String headersRaw = headersEditText.getText() == null ? null : headersEditText.getText().toString();
+        String headersRaw = null;
+
+        if (headersRaw != null && headersRaw.length() > 3) {
+            String[] lines = headersRaw.split("\\r?\\n");
+            for (String line : lines) {
+                try {
+                    int equalSignPos = line.indexOf('=');
+                    if (1 > equalSignPos) {
+                        throw new IllegalArgumentException("Wrong header format, may be 'Key=Value' only");
+                    }
+
+                    String headerName = line.substring(0, equalSignPos).trim();
+                    String headerValue = line.substring(1 + equalSignPos).trim();
+                    Log.d(LOG_TAG, String.format("Added header: [%s:%s]", headerName, headerValue));
+
+                    headers.add(new BasicHeader(headerName, headerValue));
+                } catch (Throwable t) {
+                    Log.e(LOG_TAG, "Not a valid header line: " + line, t);
+                }
+            }
+        }
+        return headers;
     }
 
     @Override
@@ -205,30 +256,4 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
         return client.get(this, URL, headers, null, responseHandler);
     }
 
-    public List<Header> getRequestHeadersList() {
-        List<Header> headers = new ArrayList<Header>();
-//        String headersRaw = headersEditText.getText() == null ? null : headersEditText.getText().toString();
-        String headersRaw = null;
-
-        if (headersRaw != null && headersRaw.length() > 3) {
-            String[] lines = headersRaw.split("\\r?\\n");
-            for (String line : lines) {
-                try {
-                    int equalSignPos = line.indexOf('=');
-                    if (1 > equalSignPos) {
-                        throw new IllegalArgumentException("Wrong header format, may be 'Key=Value' only");
-                    }
-
-                    String headerName = line.substring(0, equalSignPos).trim();
-                    String headerValue = line.substring(1 + equalSignPos).trim();
-                    Log.d(LOG_TAG, String.format("Added header: [%s:%s]", headerName, headerValue));
-
-                    headers.add(new BasicHeader(headerName, headerValue));
-                } catch (Throwable t) {
-                    Log.e(LOG_TAG, "Not a valid header line: " + line, t);
-                }
-            }
-        }
-        return headers;
-    }
 }
