@@ -53,7 +53,6 @@ public class AppCategroyServer extends IntentService {
     private String LOG_TAG = "CategroyServer";
 
     private ArrayList<PackageVO> mAppList;
-    private Handler mHandler;
 
     private final AsyncHttpClient aClient = new SyncHttpClient();
 
@@ -76,17 +75,6 @@ public class AppCategroyServer extends IntentService {
 
     public AppCategroyServer(String name) {
         super(name);
-        mHandler = new Handler() {
-
-            @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-                if (mGlobalIndex < mAppList.size()) {
-                    mGlobalIndex++;
-                    onRunButtonPressed();
-                }
-            }
-        };
     }
 
     @Override
@@ -111,7 +99,7 @@ public class AppCategroyServer extends IntentService {
     }
 
     public void onRunButtonPressed() {
-        System.out.println("mGlobalIndex -> " + mGlobalIndex);
+//        System.out.println("mGlobalIndex -> " + mGlobalIndex);
         if (mGlobalIndex == mAppList.size()) {
             showAllCategroy();
         } else {
@@ -122,7 +110,7 @@ public class AppCategroyServer extends IntentService {
 
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                    System.out.println("responseBody -> " + new String(responseBody));
+//                    System.out.println("responseBody -> " + new String(responseBody));
                     try {
                         JSONTokener jsonParser = new JSONTokener(new String(responseBody));
                         JSONObject jsonOb = (JSONObject) jsonParser.nextValue();
@@ -168,9 +156,9 @@ public class AppCategroyServer extends IntentService {
     }
 
     private void showAllCategroy() {
-        for (PackageVO p : mAppList) {
-            System.out.println("p.name " + p.appname + " p.package " + p.pname + " p.category " + p.category);
-        }
+//        for (PackageVO p : mAppList) {
+//            System.out.println("p.name " + p.appname + " p.package " + p.pname + " p.category " + p.category);
+//        }
     }
 
     public static AppCategroyServer getmInstance() {

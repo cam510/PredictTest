@@ -24,6 +24,4 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile files('libs/httpclient-4.3.6.jar')
-//    compile files('libs/jackson-databind-2.5.3-sources.jar')
-//    compile files('libs/jackson-core-2.5.3.jar')
 }

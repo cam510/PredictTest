@@ -1,5 +1,6 @@
 package com.example.cam.categorytest;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import com.example.cam.httpUtil.ResponseHandlerInterface;
 import com.example.cam.httpUtil.SampleInterface;
 import com.example.cam.httpUtil.SampleJSON;
 import com.example.cam.server.AppCategroyServer;
+import com.example.cam.server.GetCurrentAppServer;
 
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -73,9 +75,21 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
                 }
             }
         };
-//        onRunButtonPressed();
-        this.startService(new Intent(this, AppCategroyServer.class));
 
+//        onRunButtonPressed();
+
+        ActivityManager activityManager = (ActivityManager) getSystemService(getApplicationContext().ACTIVITY_SERVICE);
+        String runningActivity = activityManager.getRunningAppProcesses().get(0).pkgList[0];
+        System.out.println("activity -> " + runningActivity);
+
+        this.startService(new Intent(this, AppCategroyServer.class));
+        this.startService(new Intent(this, GetCurrentAppServer.class));
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     private Context ctx() {
