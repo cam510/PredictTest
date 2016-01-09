@@ -5,8 +5,16 @@ package com.example.cam.DB;
  */
 public class TableIndex {
 
-    static class Session {
+    static class App {
+        public final static String TABLE_NAME = "AppTable";
         public final static String APP_NAME = "AppName";
+        public final static String APP_PACKAGE = "AppPackage";
+        public final static String APP_CATEGROY = "AppCategroy";
+        public final static String APP_ALL_LAUNCHER_COUNT = "count";
+    }
+
+    static class Session {
+        public final static String APP_PACKAGE = "AppPackage";
         public final static String LOCATION = "Location";
         public final static String OPEN_TIME = "OpenTime";
         public final static String TIME_PERIOD = "TimePeriod";
@@ -15,14 +23,15 @@ public class TableIndex {
     }
 
     static class Notiication{
-        public final static String APP_NAME = "AppName";
+        public final static String TABLE_NAME = "AppNotiication";
+        public final static String APP_PACKAGE = "AppPackage";
         public final static String RECEIVE_TIME = "ReceiveTime";
         public final static String OPEN_TIME = "OpenTime";
     }
 
     static class Intimate{
         public final static String TABLE_NAME = "IntimateTable";
-        public final static String APP_NAME = "AppName";
+        public final static String APP_PACKAGE = "AppPackage";
         public final static String APP_TYPE = "AppType";
         public final static String INTIMACY = "Intimacy";
         public final static String RECEIVE_COUNT = "ReceiveCount";
@@ -30,7 +39,7 @@ public class TableIndex {
 
     static class Period{
         public final static String TABLE_NAME = "PeriodTable";
-        public final static String APP_NAME = "AppName";
+        public final static String APP_PACKAGE = "AppPackage";
         public final static String _0_1 = "_0_1";
         public final static String _1_2 = "_1_2";
         public final static String _2_3 = "_2_3";
@@ -49,6 +58,7 @@ public class TableIndex {
         public final static String _15_16 = "_15_16";
         public final static String _16_17 = "_16_17";
         public final static String _17_18 = "_17_18";
+        public final static String _18_19 = "_18_19";
         public final static String _19_20 = "_19_20";
         public final static String _20_21 = "_20_21";
         public final static String _21_22 = "_21_22";

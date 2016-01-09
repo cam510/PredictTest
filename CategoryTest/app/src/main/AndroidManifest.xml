@@ -25,7 +25,13 @@
         </activity>
         <service android:name="com.example.cam.server.AppCategroyServer"/>
         <service android:name="com.example.cam.server.GetCurrentAppServer" android:process=":notification">
+            <intent-filter>
+                <action android:name="com.GetCurrentAppServer" />
+            </intent-filter>
         </service>
+
+        <receiver android:name="com.example.cam.broadcast.ScreenBroadcastReceiver"/>
     </application>
+
 
 </manifest>
