@@ -1,12 +1,17 @@
 package com.example.cam.DB;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.example.cam.categoryUtil.PackageVO;
 import com.example.cam.commonUtils.DateUtil;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
 
 /**
  * Created by cam on 1/7/16.
@@ -19,8 +24,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private String CREATE_APP_TABLE = "CREATE TABLE IF NOT EXISTS " +
             TableIndex.App.TABLE_NAME + " ( "
-            + TableIndex.App.APP_NAME + " TEXT , "
-            + TableIndex.App.APP_PACKAGE + " TEXT DEFAULT NULL, "
+            + TableIndex.App.APP_PACKAGE + " TEXT PRIMARY KEY, "
+            + TableIndex.App.APP_NAME + " TEXT DEFAULT NULL, "
             + TableIndex.App.APP_CATEGROY + " TEXT DEFAULT NULL, "
             + TableIndex.App.APP_ALL_LAUNCHER_COUNT + " INTEGER DEFAULT 0"
             + " )";
@@ -42,14 +47,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private String CREATE_INTIMATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
             TableIndex.Intimate.TABLE_NAME + " ( "
-            + TableIndex.Intimate.APP_PACKAGE + " TEXT , "
+            + TableIndex.Intimate.APP_PACKAGE + " TEXT PRIMARY KEY, "
             + TableIndex.Intimate.INTIMACY + " INTEGER DEFAULT 0, "
             + TableIndex.Intimate.RECEIVE_COUNT + " INTEGER DEFAULT 0"
             + " )";
 
     private String CREATE_PERIOD_TABLE = "CREATE TABLE IF NOT EXISTS " +
             "Period_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis()) +" ( "
-            + TableIndex.Period.APP_PACKAGE + " TEXT , "
+            + TableIndex.Period.APP_PACKAGE + " TEXT PRIMARY KEY, "
             + TableIndex.Period._0_1 + " INTEGER DEFAULT 0, "
             + TableIndex.Period._1_2 + " INTEGER DEFAULT 0, "
             + TableIndex.Period._2_3 + " INTEGER DEFAULT 0, "
@@ -123,16 +128,132 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public static String getSessionTableName() {
-        return DateUtil.formatDateWithoutHour(System.currentTimeMillis()) + "_Session";
+        return "Session_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis()) ;
     }
 
     public static String getNotificationTableName() {
-        return DateUtil.formatDateWithoutHour(System.currentTimeMillis()) + "_Notiication";
+        return "Notiication_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis()) ;
     }
 
     public void createSession(SQLiteDatabase db) {
         db.execSQL(CREATE_SESSION_TABLE);
         db.close();
+    }
+
+    public void insertAppTable(SQLiteDatabase db, ArrayList<PackageVO> appList) {
+        try {
+            if (!tabIsExist(TableIndex.App.TABLE_NAME)) {
+                db.execSQL(CREATE_APP_TABLE);
+                for (PackageVO p : appList) {
+                    ContentValues cv = new ContentValues();
+                    cv.put(TableIndex.App.APP_NAME, p.appname);
+                    cv.put(TableIndex.App.APP_PACKAGE, p.pname);
+                    db.insert(TableIndex.App.TABLE_NAME, null, cv);
+                }
+            } else {
+                for (PackageVO p : appList) {
+                    ContentValues cv = new ContentValues();
+                    cv.put(TableIndex.App.APP_NAME, p.appname);
+                    cv.put(TableIndex.App.APP_PACKAGE, p.pname);
+                    db.insert(TableIndex.App.TABLE_NAME, null, cv);
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            db.close();
+        }
+    }
+
+    public int getAppTableCount(SQLiteDatabase db) {
+        try {
+            if (!tabIsExist(TableIndex.App.TABLE_NAME)) {
+                db.execSQL(CREATE_APP_TABLE);
+                return 0;
+            } else {
+                Cursor cr = db.query(TableIndex.App.TABLE_NAME, null, null, null, null, null, null);
+                if (cr != null) {
+                    return  cr.getCount();
+                } else {
+                    return 0;
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            db.close();
+        }
+        return 0;
+    }
+
+    public void deleteAppTable(SQLiteDatabase db) {
+        try {
+            db.execSQL("DROP TABLE " + TableIndex.App.TABLE_NAME);
+        } catch (android.database.SQLException ex) {
+            ex.printStackTrace();
+        } finally {
+            db.close();
+        }
+    }
+
+    public ArrayList<PackageVO> getNullCategroyList(SQLiteDatabase db) {
+        ArrayList<PackageVO> nullCategroyList = new ArrayList<PackageVO>();
+        try {
+            Cursor c = db.query(TableIndex.App.TABLE_NAME,
+                    new String[] {TableIndex.App.APP_PACKAGE, TableIndex.App.APP_NAME},
+                    TableIndex.App.APP_CATEGROY + " is null ",
+                    null, null, null, null);
+            if (c != null) {
+                while (c.moveToNext()) {
+                    PackageVO p = new PackageVO();
+                    String packName = c.getString(c.getInt(0));
+                    String appName = c.getString(c.getInt(1));
+                    p.pname = packName;
+                    p.appname = appName;
+                    nullCategroyList.add(p);
+                }
+            }
+        } catch (Exception ex){
+            ex.printStackTrace();
+        } finally {
+            db.close();
+        }
+        System.out.println("null size -> " + nullCategroyList.size());
+        return nullCategroyList;
+    }
+
+    public void updateAppCategroy (SQLiteDatabase db, ArrayList<PackageVO> appList) {
+        System.out.println("enter update");
+        try {
+            if (appList.size() == 0) {
+                return;
+            } else {
+                for (PackageVO p : appList) {
+                    ContentValues cv = new ContentValues();
+                    cv.put(TableIndex.App.APP_CATEGROY, p.category);
+                    db.update(TableIndex.App.TABLE_NAME, cv, TableIndex.App.APP_PACKAGE + " = ?", new String[]{p.pname});
+                }
+            }
+        } catch (android.database.SQLException ex) {
+            ex.printStackTrace();
+        } finally {
+            db.close();
+        }
+    }
+
+    public void queryCategroy (SQLiteDatabase db) {
+        try {
+            Cursor cr = db.query(TableIndex.App.TABLE_NAME, null, null, null, null, null, null, null);
+            if(cr != null) {
+                while (cr.moveToNext()) {
+                    System.out.println("" + cr.getString(cr.getColumnIndex(TableIndex.App.APP_CATEGROY)));
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            db.close();
+        }
     }
 
 }

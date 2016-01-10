@@ -8,6 +8,7 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.cam.MyApplication;
 import com.example.cam.categoryUtil.PackageUtil;
 import com.example.cam.categoryUtil.PackageVO;
 import com.example.cam.commonUtils.CategroyUtil;
@@ -53,24 +54,14 @@ public class AppCategroyServer extends IntentService {
     private String LOG_TAG = "CategroyServer";
 
     private ArrayList<PackageVO> mAppList;
+    private ArrayList<PackageVO> nullList;
 
     private final AsyncHttpClient aClient = new SyncHttpClient();
 
     public static AppCategroyServer mInstance = null;
 
     public AppCategroyServer() {
-        super("");
-//        mHandler = new Handler() {
-//
-//            @Override
-//            public void handleMessage(Message msg) {
-//                super.handleMessage(msg);
-//                if (mGlobalIndex < mAppList.size()) {
-//                    mGlobalIndex++;
-//                    onRunButtonPressed();
-//                }
-//            }
-//        };
+        super("AppCategroyServer");
     }
 
     public AppCategroyServer(String name) {
@@ -81,7 +72,6 @@ public class AppCategroyServer extends IntentService {
     protected void onHandleIntent(Intent intent) {
         System.out.println("onHandleIntent");
         onRunButtonPressed();
-
     }
 
     @Override
@@ -89,6 +79,7 @@ public class AppCategroyServer extends IntentService {
         System.out.println("onstart server");
         int flag = START_STICKY;
         mAppList = ((ArrayList<PackageVO>) PackageUtil.getLaunchableApps(getApplication().getApplicationContext(), true));
+        nullList = MyApplication.getmDbHelper().getNullCategroyList(MyApplication.getmDbHelper().getReadableDatabase());
         return super.onStartCommand(intent, flag, startId);
     }
 
@@ -99,18 +90,17 @@ public class AppCategroyServer extends IntentService {
     }
 
     public void onRunButtonPressed() {
-//        System.out.println("mGlobalIndex -> " + mGlobalIndex);
-        if (mGlobalIndex == mAppList.size()) {
+        if (mGlobalIndex == nullList.size()) {
             showAllCategroy();
         } else {
-            aClient.get(this, CategroyUtil._42_Matter_Heread + mAppList.get(mGlobalIndex).pname + CategroyUtil.get_42_Matter_End, new AsyncHttpResponseHandler() {
+            aClient.get(this, CategroyUtil._42_Matter_Heread + nullList.get(mGlobalIndex).pname + CategroyUtil.get_42_Matter_End, new AsyncHttpResponseHandler() {
                 @Override
                 public void onStart() {
                 }
 
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-//                    System.out.println("responseBody -> " + new String(responseBody));
+                    System.out.println("responseBody -> " + new String(responseBody));
                     try {
                         JSONTokener jsonParser = new JSONTokener(new String(responseBody));
                         JSONObject jsonOb = (JSONObject) jsonParser.nextValue();
@@ -132,7 +122,7 @@ public class AppCategroyServer extends IntentService {
                     }
                     if (statusCode == 0) {
 
-                    } else if (statusCode == 404){
+                    } else if (statusCode == 404) {
                         mGlobalIndex++;
                         onRunButtonPressed();
                     } else {
@@ -156,9 +146,9 @@ public class AppCategroyServer extends IntentService {
     }
 
     private void showAllCategroy() {
-//        for (PackageVO p : mAppList) {
-//            System.out.println("p.name " + p.appname + " p.package " + p.pname + " p.category " + p.category);
-//        }
+        System.out.println("enter showAll");
+        MyApplication.getmDbHelper().updateAppCategroy(MyApplication.getmDbHelper().getWritableDatabase()
+                , mAppList);
     }
 
     public static AppCategroyServer getmInstance() {

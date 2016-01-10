@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.cam.MyApplication;
 import com.example.cam.categoryUtil.PackageUtil;
 import com.example.cam.categoryUtil.PackageVO;
 import com.example.cam.commonUtils.CategroyUtil;
@@ -44,7 +45,7 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
     private int mGlobalIndex = 0;
     private String LOG_TAG = "CategroyMain";
 
-    private ArrayList<PackageVO> mAppList;
+    private ArrayList<PackageVO> nullList;
     private Handler mHandler;
     private final List<RequestHandle> requestHandles = new LinkedList<RequestHandle>();
 
@@ -63,28 +64,36 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_categroy_main);
-        mAppList = ((ArrayList<PackageVO>) PackageUtil.getLaunchableApps(ctx(), true));
+
         mHandler = new Handler() {
 
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
-                if (mGlobalIndex < mAppList.size()) {
+                if (mGlobalIndex < nullList.size()) {
                     mGlobalIndex++;
                     onRunButtonPressed();
                 }
             }
         };
 
-//        onRunButtonPressed();
+        runDB();
 
-        ActivityManager activityManager = (ActivityManager) getSystemService(getApplicationContext().ACTIVITY_SERVICE);
-        String runningActivity = activityManager.getRunningAppProcesses().get(0).pkgList[0];
-        System.out.println("activity -> " + runningActivity);
+//        this.startService(new Intent(this, AppCategroyServer.class));
+//        this.startService(new Intent(this, GetCurrentAppServer.class));
 
-        this.startService(new Intent(this, AppCategroyServer.class));
-        this.startService(new Intent(this, GetCurrentAppServer.class));
+    }
 
+    private void runDB() {
+        MyApplication.getmDbHelper().insertAppTable(MyApplication.getmDbHelper().getWritableDatabase(),
+                ((ArrayList<PackageVO>) PackageUtil.getLaunchableApps(getApplicationContext(), true)));
+        System.out.println("db count -> " + MyApplication.getmDbHelper().getAppTableCount(MyApplication.getmDbHelper().getReadableDatabase()));
+        nullList = MyApplication.getmDbHelper().getNullCategroyList(MyApplication.getmDbHelper().getReadableDatabase());
+        if (nullList.size() > 0) {
+            onRunButtonPressed();
+        } else {
+//            MyApplication.getmDbHelper().queryCategroy(MyApplication.getmDbHelper().getReadableDatabase());
+        }
     }
 
     @Override
@@ -111,11 +120,11 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
     @Override
     public void onRunButtonPressed() {
         System.out.println("mGlobalIndex -> " + mGlobalIndex);
-        if (mGlobalIndex == mAppList.size()) {
+        if (mGlobalIndex == nullList.size()) {
             showAllCategroy();
         } else {
             addRequestHandle(executeSample(getAsyncHttpClient(),
-                    CategroyUtil._42_Matter_Heread + mAppList.get(mGlobalIndex).pname + CategroyUtil.get_42_Matter_End,
+                    CategroyUtil._42_Matter_Heread + nullList.get(mGlobalIndex).pname + CategroyUtil.get_42_Matter_End,
                     getRequestHeaders(),
                     getRequestEntity(),
                     getResponseHandler()));
@@ -192,7 +201,7 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
                     JSONTokener jsonParser = new JSONTokener(rawJsonData);
                     JSONObject jsonOb = (JSONObject) jsonParser.nextValue();
                     if (jsonOb.has("category")) {
-                        mAppList.get(mGlobalIndex).category = (String) jsonOb.get("category");
+                        nullList.get(mGlobalIndex).category = (String) jsonOb.get("category");
                     }
                 }
                 mHandler.sendEmptyMessage(0);
@@ -203,14 +212,11 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
     }
 
     private void showAllCategroy() {
-        for (PackageVO p : mAppList) {
-            System.out.println("p.name " + p.appname + " p.package " + p.pname + " p.category " + p.category);
-        }
+        MyApplication.getmDbHelper().updateAppCategroy(MyApplication.getmDbHelper().getWritableDatabase(), nullList);
     }
 
     public List<Header> getRequestHeadersList() {
         List<Header> headers = new ArrayList<Header>();
-//        String headersRaw = headersEditText.getText() == null ? null : headersEditText.getText().toString();
         String headersRaw = null;
 
         if (headersRaw != null && headersRaw.length() > 3) {

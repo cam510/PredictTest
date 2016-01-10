@@ -18,8 +18,8 @@ public class TableIndex {
         public final static String LOCATION = "Location";
         public final static String OPEN_TIME = "OpenTime";
         public final static String TIME_PERIOD = "TimePeriod";
-        public final static String TODAY_USE_TIME = "TodayUseTime";
-        public final static String TODAY_APP_POWER = "TodayAppPower";
+//        public final static String TODAY_USE_TIME = "TodayUseTime";
+//        public final static String TODAY_APP_POWER = "TodayAppPower";
     }
 
     static class Notiication{
@@ -32,13 +32,13 @@ public class TableIndex {
     static class Intimate{
         public final static String TABLE_NAME = "IntimateTable";
         public final static String APP_PACKAGE = "AppPackage";
-        public final static String APP_TYPE = "AppType";
+//        public final static String APP_TYPE = "AppType";
         public final static String INTIMACY = "Intimacy";
         public final static String RECEIVE_COUNT = "ReceiveCount";
     }
 
     static class Period{
-        public final static String TABLE_NAME = "PeriodTable";
+//        public final static String TABLE_NAME = "PeriodTable";
         public final static String APP_PACKAGE = "AppPackage";
         public final static String _0_1 = "_0_1";
         public final static String _1_2 = "_1_2";

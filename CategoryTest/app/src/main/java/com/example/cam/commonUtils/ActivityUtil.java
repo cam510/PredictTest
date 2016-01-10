@@ -12,7 +12,7 @@ public class ActivityUtil {
     private static Handler mHandler = new Handler();
 
     public static void startWeChat(final Context context, Handler handler) {
-        handler.post(new Runnable() {
+        mHandler.post(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -26,23 +26,9 @@ public class ActivityUtil {
     }
 
     public static void launcherPredictApp(final Context context, Handler handler, final String lastApp) {
-//        startWeChat(context, handler);
+        startWeChat(context, handler);
 
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    System.out.println("launcherPredictApp home ");
-                    Intent home = new Intent(Intent.ACTION_MAIN);
-                    home.addCategory(Intent.CATEGORY_HOME);
-                    context.startActivity(home);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }, 500);
-
-        handler.postDelayed(new Runnable() {
+        mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -53,6 +39,6 @@ public class ActivityUtil {
                     ex.printStackTrace();
                 }
             }
-        }, 1000);
+        }, 600);
     }
 }
