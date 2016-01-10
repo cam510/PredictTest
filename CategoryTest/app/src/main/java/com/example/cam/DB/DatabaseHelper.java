@@ -131,9 +131,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return "Session_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis()) ;
     }
 
-    public static String getNotificationTableName() {
-        return "Notiication_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis()) ;
+    public static String getPeriodTableName() {
+        return "Period_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis()) ;
     }
+
+
 
     public void createSession(SQLiteDatabase db) {
         db.execSQL(CREATE_SESSION_TABLE);
@@ -241,6 +243,31 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    public void updateAppLauncher (SQLiteDatabase db, String packName) {
+        System.out.println("enter update");
+        try {
+            int count = 0;
+            Cursor cursor = db.query(TableIndex.App.TABLE_NAME,
+                    new String[] {TableIndex.App.APP_ALL_LAUNCHER_COUNT},
+                    TableIndex.App.APP_PACKAGE + " = ?" ,
+                    new String[] {packName}, null, null, null);
+            if (cursor != null) {
+                cursor.moveToNext();
+                count = cursor.getInt(0);
+                count++;
+            } else {
+                return;
+            }
+            ContentValues cv = new ContentValues();
+            cv.put(TableIndex.App.APP_ALL_LAUNCHER_COUNT, count);
+            db.update(TableIndex.App.TABLE_NAME, cv, TableIndex.App.APP_PACKAGE + " = ?", new String[]{packName});
+        } catch (android.database.SQLException ex) {
+            ex.printStackTrace();
+        } finally {
+            db.close();
+        }
+    }
+
     public void queryCategroy (SQLiteDatabase db) {
         try {
             Cursor cr = db.query(TableIndex.App.TABLE_NAME, null, null, null, null, null, null, null);
@@ -249,6 +276,57 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     System.out.println("" + cr.getString(cr.getColumnIndex(TableIndex.App.APP_CATEGROY)));
                 }
             }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            db.close();
+        }
+    }
+
+    public void updatePeriod (SQLiteDatabase db, String packName) {
+        try {
+            if (!tabIsExist(getPeriodTableName())) {
+                db.execSQL(CREATE_PERIOD_TABLE);
+            }
+            Cursor cursor = db.query(getPeriodTableName(),
+                    null,
+                    TableIndex.App.APP_PACKAGE + " = ?" ,
+                    new String[] {packName}, null, null, null);
+            ContentValues cv = new ContentValues();
+            if (cursor == null) {
+                cv.put(TableIndex.Period.APP_PACKAGE, packName);
+                cv.put(DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())], 1);
+                db.insert(getPeriodTableName(), null, cv);
+            } else {
+                if (cursor.getCount() == 0) {
+                    cv.put(TableIndex.Period.APP_PACKAGE, packName);
+                    cv.put(DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())], 1);
+                    db.insert(getPeriodTableName(), null, cv);
+                } else {
+                    cursor.moveToFirst();
+                    int count = cursor.getInt(cursor.getColumnIndex(DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())]));
+                    count++;
+                    cv.put(DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())], count);
+                    db.update(getPeriodTableName(), cv, TableIndex.Period.APP_PACKAGE + " = ?", new String[]{packName});
+                }
+            }
+        } catch (android.database.SQLException ex) {
+            ex.printStackTrace();
+        } finally {
+            db.close();
+        }
+    }
+
+    public void insertSession(SQLiteDatabase db, String packName, String location) {
+        try {
+            if (!tabIsExist(getSessionTableName())) {
+                db.execSQL(CREATE_SESSION_TABLE);
+            }
+            ContentValues cv = new ContentValues();
+            cv.put(TableIndex.Session.APP_PACKAGE, packName);
+            cv.put(TableIndex.Session.LOCATION, location);
+            cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())]);
+            db.insert(getSessionTableName(), null, cv);
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {

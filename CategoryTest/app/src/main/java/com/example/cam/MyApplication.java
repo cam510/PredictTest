@@ -4,9 +4,11 @@ import android.app.Application;
 import android.content.Intent;
 import android.os.Handler;
 
+import com.baidu.location.LocationClient;
 import com.example.cam.DB.DatabaseHelper;
 import com.example.cam.categoryUtil.PackageUtil;
 import com.example.cam.categoryUtil.PackageVO;
+import com.example.cam.location.MyLocationListenner;
 import com.example.cam.server.AppCategroyServer;
 
 import java.util.ArrayList;
@@ -18,6 +20,10 @@ public class MyApplication extends Application{
 
     private static DatabaseHelper mDbHelper;
     private static MyApplication AppInstance = null;
+
+    public static LocationClient mLocationClient = null;
+    public static MyLocationListenner myListener = null;
+
     private Handler mHandler = new Handler();
 
     @Override
@@ -26,6 +32,10 @@ public class MyApplication extends Application{
         AppInstance = this;
         mDbHelper = new DatabaseHelper(this);
         mDbHelper.onCreate(mDbHelper.getWritableDatabase());
+
+        mLocationClient = new LocationClient(this);
+        myListener = new MyLocationListenner(mLocationClient);
+        mLocationClient.registerLocationListener(myListener);
 
 //        runDB();
     }

@@ -5,7 +5,7 @@ package com.example.cam.DB;
  */
 public class TableIndex {
 
-    static class App {
+    public static class App {
         public final static String TABLE_NAME = "AppTable";
         public final static String APP_NAME = "AppName";
         public final static String APP_PACKAGE = "AppPackage";
@@ -13,7 +13,7 @@ public class TableIndex {
         public final static String APP_ALL_LAUNCHER_COUNT = "count";
     }
 
-    static class Session {
+    public static class Session {
         public final static String APP_PACKAGE = "AppPackage";
         public final static String LOCATION = "Location";
         public final static String OPEN_TIME = "OpenTime";
@@ -22,14 +22,14 @@ public class TableIndex {
 //        public final static String TODAY_APP_POWER = "TodayAppPower";
     }
 
-    static class Notiication{
+    public static class Notiication{
         public final static String TABLE_NAME = "AppNotiication";
         public final static String APP_PACKAGE = "AppPackage";
         public final static String RECEIVE_TIME = "ReceiveTime";
         public final static String OPEN_TIME = "OpenTime";
     }
 
-    static class Intimate{
+    public static class Intimate{
         public final static String TABLE_NAME = "IntimateTable";
         public final static String APP_PACKAGE = "AppPackage";
 //        public final static String APP_TYPE = "AppType";
@@ -37,7 +37,7 @@ public class TableIndex {
         public final static String RECEIVE_COUNT = "ReceiveCount";
     }
 
-    static class Period{
+    public static class Period{
 //        public final static String TABLE_NAME = "PeriodTable";
         public final static String APP_PACKAGE = "AppPackage";
         public final static String _0_1 = "_0_1";

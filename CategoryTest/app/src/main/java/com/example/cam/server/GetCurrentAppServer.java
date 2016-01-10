@@ -34,6 +34,7 @@ public class GetCurrentAppServer extends IntentService{
     private boolean isStart = true;
     private String lastApp = "";
     private String closeApp = "";
+    private boolean isScreenOn = true;
 
     private static GetCurrentAppServer mInstance = null;
 
@@ -59,8 +60,16 @@ public class GetCurrentAppServer extends IntentService{
                     try {
                         String runningActivity = getRunningAppPackName();
                         System.out.println("runningActivity -> " + runningActivity);
-                        if (!lastApp.equals(runningActivity)) {
+                        if (!lastApp.equals(runningActivity)
+                                && isScreenOn
+                                && !runningActivity.contains("LAUNCHER")
+                                && !runningActivity.contains("launcher")) {
                             lastApp = runningActivity;
+                            MyApplication.getmDbHelper().updateAppLauncher(MyApplication.getmDbHelper().getWritableDatabase(), lastApp);
+                            MyApplication.getmDbHelper().updatePeriod(MyApplication.getmDbHelper().getWritableDatabase(), lastApp);
+                            Intent locationServer = new Intent(getApplicationContext(), LocationServer.class);
+                            locationServer.putExtra("packName", lastApp);
+                            getApplicationContext().startService(locationServer);
                         }
                         Thread.sleep(5000);
                     } catch (InterruptedException ex) {
@@ -133,10 +142,12 @@ public class GetCurrentAppServer extends IntentService{
             String action = intent.getAction();
             if (Intent.ACTION_SCREEN_ON.equals(action)) {
                 Log.i(LOG_TAG, "screen on");
+                isScreenOn = true;
                 ActivityUtil.launcherPredictApp(context, mHandler, closeApp);
             } else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
                 Log.i(LOG_TAG, "screen off");
                 closeApp = getRunningAppPackName();
+                isScreenOn = false;
             } else if (Intent.ACTION_USER_PRESENT.equals(action)) {
                 Log.i(LOG_TAG, "screen unlock");
             } else if (Intent.ACTION_CLOSE_SYSTEM_DIALOGS.equals(intent.getAction())) {

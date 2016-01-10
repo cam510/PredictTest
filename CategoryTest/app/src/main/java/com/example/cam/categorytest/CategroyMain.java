@@ -23,6 +23,7 @@ import com.example.cam.httpUtil.SampleInterface;
 import com.example.cam.httpUtil.SampleJSON;
 import com.example.cam.server.AppCategroyServer;
 import com.example.cam.server.GetCurrentAppServer;
+import com.example.cam.server.LocationServer;
 
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -79,8 +80,9 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
 
         runDB();
 
-//        this.startService(new Intent(this, AppCategroyServer.class));
-//        this.startService(new Intent(this, GetCurrentAppServer.class));
+//        startService(new Intent(this, AppCategroyServer.class));
+        startService(new Intent(this, GetCurrentAppServer.class));
+//        startService(new Intent(this, LocationServer.class));
 
     }
 
