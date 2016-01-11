@@ -13,6 +13,8 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
 import com.example.cam.DB.DatabaseHelper;
 import com.example.cam.MyApplication;
 import com.example.cam.broadcast.ScreenBroadcastReceiver;
@@ -37,6 +39,8 @@ public class GetCurrentAppServer extends IntentService{
     private boolean isScreenOn = true;
 
     private static GetCurrentAppServer mInstance = null;
+
+    private LocationClient mLocClient;
 
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
@@ -67,9 +71,15 @@ public class GetCurrentAppServer extends IntentService{
                             lastApp = runningActivity;
                             MyApplication.getmDbHelper().updateAppLauncher(MyApplication.getmDbHelper().getWritableDatabase(), lastApp);
                             MyApplication.getmDbHelper().updatePeriod(MyApplication.getmDbHelper().getWritableDatabase(), lastApp);
-                            Intent locationServer = new Intent(getApplicationContext(), LocationServer.class);
-                            locationServer.putExtra("packName", lastApp);
-                            getApplicationContext().startService(locationServer);
+//                            Intent locationServer = new Intent(getApplicationContext(), LocationServer.class);
+//                            locationServer.putExtra("packName", lastApp);
+//                            getApplicationContext().startService(locationServer);
+                            MyApplication.myListener.setCurPackName(lastApp);
+                            setLocationOption();
+                            if (mLocClient.isStarted()) {
+                                mLocClient.stop();
+                            }
+                            mLocClient.start();
                         }
                         Thread.sleep(5000);
                     } catch (InterruptedException ex) {
@@ -97,6 +107,8 @@ public class GetCurrentAppServer extends IntentService{
     public int onStartCommand(Intent intent, int flags, int startId) {
         isStart = intent.getBooleanExtra("isStart", true);
         flags = START_STICKY;
+        mLocClient = MyApplication.mLocationClient;
+        setLocationOption();
         registerScreenBroadcast();
         return super.onStartCommand(intent, flags, startId);
     }
@@ -143,7 +155,9 @@ public class GetCurrentAppServer extends IntentService{
             if (Intent.ACTION_SCREEN_ON.equals(action)) {
                 Log.i(LOG_TAG, "screen on");
                 isScreenOn = true;
-                ActivityUtil.launcherPredictApp(context, mHandler, closeApp);
+                if (!closeApp.equals(lastApp)) {
+                    ActivityUtil.launcherPredictApp(context, mHandler, closeApp);
+                }
             } else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
                 Log.i(LOG_TAG, "screen off");
                 closeApp = getRunningAppPackName();
@@ -159,5 +173,14 @@ public class GetCurrentAppServer extends IntentService{
     private String getRunningAppPackName() {
         ActivityManager activityManager = (ActivityManager) getSystemService(getApplicationContext().ACTIVITY_SERVICE);
         return activityManager.getRunningAppProcesses().get(0).pkgList[0];
+    }
+
+    //设置相关参数
+    private void setLocationOption(){
+        LocationClientOption option = new LocationClientOption();
+        option.setOpenGps(true);				//打开gps
+        option.setAddrType("all");		//设置地址信息，仅设置为“all”时有地址信息，默认无地址信息
+        option.setScanSpan(0);	//设置定位模式，小于1秒则一次定位;大于等于1秒则定时定位
+        mLocClient.setLocOption(option);
     }
 }

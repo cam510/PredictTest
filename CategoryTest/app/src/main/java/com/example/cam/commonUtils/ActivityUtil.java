@@ -2,6 +2,8 @@ package com.example.cam.commonUtils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 
 /**
@@ -40,5 +42,30 @@ public class ActivityUtil {
                 }
             }
         }, 600);
+    }
+
+    public static boolean hasSomePermission(String permission, Context context) throws PackageManager.NameNotFoundException {
+        PackageManager pm = context.getPackageManager();
+//        boolean hasPermission = (PackageManager.PERMISSION_GRANTED ==
+//                pm.checkPermission(permission, context.getPackageName()));
+//        if (hasPermission) {
+//            System.out.println("有权限");
+//        } else {
+//            System.out.println("木有权限");
+//        }
+        boolean hasPermission = false;
+        PackageInfo pack = pm.getPackageInfo(context.getPackageName(), PackageManager.GET_PERMISSIONS);
+        String[] permissionStrings = pack.requestedPermissions;
+        if (permissionStrings.length > 0) {
+            for (String per : permissionStrings) {
+                System.out.println(per);
+                if (per.equalsIgnoreCase(permission)) {
+                    hasPermission = true;
+                    System.out.println("有权限");
+                    break;
+                }
+            }
+        }
+        return hasPermission;
     }
 }

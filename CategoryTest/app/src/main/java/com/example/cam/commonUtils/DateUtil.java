@@ -45,8 +45,13 @@ public class DateUtil {
         return df.format(date);
     }
 
-    public static String formatDateWithHourMIN(long date) {
+    public static String formatDateWithHourMin(long date) {
         SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmm");
+        return df.format(date);
+    }
+
+    public static String formatDateWithHourMinSecond(long date) {
+        SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
         return df.format(date);
     }
 

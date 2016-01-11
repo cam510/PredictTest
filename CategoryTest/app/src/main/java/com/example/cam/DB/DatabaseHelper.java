@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.example.cam.categoryUtil.PackageVO;
 import com.example.cam.commonUtils.DateUtil;
+import com.example.cam.server.ReceviceObject;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -94,7 +95,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         System.out.println("enter DB onClick");
         db.execSQL(CREATE_APP_TABLE);
         db.execSQL(CREATE_SESSION_TABLE);
-        db.execSQL(CREATE_NOTIICATION_TABLE);
+//        db.execSQL(CREATE_NOTIICATION_TABLE);
         db.execSQL(CREATE_INTIMATE_TABLE);
         db.execSQL(CREATE_PERIOD_TABLE);
     }
@@ -317,7 +318,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void insertSession(SQLiteDatabase db, String packName, String location) {
+    public void insertSession( String packName, String location) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        System.out.println("enter insertSession " + db.getPath());
         try {
             if (!tabIsExist(getSessionTableName())) {
                 db.execSQL(CREATE_SESSION_TABLE);
@@ -327,6 +330,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cv.put(TableIndex.Session.LOCATION, location);
             cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())]);
             db.insert(getSessionTableName(), null, cv);
+            Cursor cr = db.query(getSessionTableName(), null, null, null, null, null, null);
+            while (cr.moveToNext()) {
+                System.out.println("" + cr.getString(0));
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
@@ -334,4 +341,42 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    public void updateIntimate (SQLiteDatabase db, ReceviceObject recevice) {
+        try {
+            if (!tabIsExist(TableIndex.Intimate.TABLE_NAME)) {
+                db.execSQL(CREATE_NOTIICATION_TABLE);
+            }
+            Cursor cursor = db.query(TableIndex.Intimate.TABLE_NAME,
+                    null,
+                    TableIndex.Intimate.APP_PACKAGE + " = ?" ,
+                    new String[] {recevice.getPackName()}, null, null, null);
+            ContentValues cv = new ContentValues();
+            if (cursor == null) {
+                cv.put(TableIndex.Intimate.APP_PACKAGE, recevice.getPackName());
+                cv.put(TableIndex.Intimate.INTIMACY, 1);
+                cv.put(TableIndex.Intimate.RECEIVE_COUNT, 1);
+                db.insert(TableIndex.Intimate.TABLE_NAME, null, cv);
+            } else {
+                if (cursor.getCount() == 0) {
+                    cv.put(TableIndex.Intimate.APP_PACKAGE, recevice.getPackName());
+                    cv.put(TableIndex.Intimate.INTIMACY, 1);
+                    cv.put(TableIndex.Intimate.RECEIVE_COUNT, 1);
+                    db.insert(TableIndex.Intimate.TABLE_NAME, null, cv);
+                } else {
+                    cursor.moveToFirst();
+                    int intimate = cursor.getInt(cursor.getColumnIndex(TableIndex.Intimate.INTIMACY));
+                    intimate++;
+                    int receviceCount = cursor.getInt(cursor.getColumnIndex(TableIndex.Intimate.RECEIVE_COUNT));
+                    receviceCount++;
+                    cv.put(TableIndex.Intimate.INTIMACY, intimate);
+                    cv.put(TableIndex.Intimate.RECEIVE_COUNT, receviceCount);
+                    db.update(TableIndex.Intimate.TABLE_NAME, cv, TableIndex.Intimate.APP_PACKAGE + " = ?", new String[]{recevice.getPackName()});
+                }
+            }
+        } catch (android.database.SQLException ex) {
+            ex.printStackTrace();
+        } finally {
+            db.close();
+        }
+    }
 }

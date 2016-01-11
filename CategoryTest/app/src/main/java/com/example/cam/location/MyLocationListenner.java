@@ -67,7 +67,8 @@ public class MyLocationListenner implements BDLocationListener {
             System.out.println("location is -> " + location.getAddrStr());
             locationStr = location.getAddrStr();
         }
-        MyApplication.getmDbHelper().insertSession(MyApplication.getmDbHelper().getWritableDatabase(), curPackName, locationStr);
+        MyApplication.getmDbHelper().insertSession(curPackName, locationStr);
+        mLocationClient.stop();
     }
 
     public void onReceivePoi(BDLocation poiLocation) {

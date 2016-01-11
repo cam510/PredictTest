@@ -3,6 +3,7 @@ package com.example.cam.categorytest;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 import com.example.cam.MyApplication;
 import com.example.cam.categoryUtil.PackageUtil;
 import com.example.cam.categoryUtil.PackageVO;
+import com.example.cam.commonUtils.ActivityUtil;
 import com.example.cam.commonUtils.CategroyUtil;
 import com.example.cam.httpUtil.AsyncHttpClient;
 import com.example.cam.httpUtil.AsyncHttpRequest;
@@ -24,6 +26,7 @@ import com.example.cam.httpUtil.SampleJSON;
 import com.example.cam.server.AppCategroyServer;
 import com.example.cam.server.GetCurrentAppServer;
 import com.example.cam.server.LocationServer;
+import com.example.cam.server.NotificationServer;
 
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -78,12 +81,24 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
             }
         };
 
+        //解除注释 启动分类应用服务
         runDB();
 
-//        startService(new Intent(this, AppCategroyServer.class));
         startService(new Intent(this, GetCurrentAppServer.class));
-//        startService(new Intent(this, LocationServer.class));
-
+//        startService(new Intent(this, NotificationServer.class));
+        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+        startActivity(intent);
+//        try {
+//            if (ActivityUtil.hasSomePermission("android.permission.BIND_NOTIFICATION_LISTENER_SERVICE", getApplicationContext())) {
+//                startService(new Intent(this, NotificationServer.class));
+//            } else {
+//                Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+//                startActivity(intent);
+//            }
+//
+//        } catch (PackageManager.NameNotFoundException e) {
+//            e.printStackTrace();
+//        }
     }
 
     private void runDB() {
@@ -94,7 +109,7 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
         if (nullList.size() > 0) {
             onRunButtonPressed();
         } else {
-//            MyApplication.getmDbHelper().queryCategroy(MyApplication.getmDbHelper().getReadableDatabase());
+            MyApplication.getmDbHelper().queryCategroy(MyApplication.getmDbHelper().getReadableDatabase());
         }
     }
 

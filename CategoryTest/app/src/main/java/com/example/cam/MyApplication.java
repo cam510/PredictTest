@@ -48,11 +48,10 @@ public class MyApplication extends Application{
                         ((ArrayList<PackageVO>) PackageUtil.getLaunchableApps(AppInstance, true)));
                 System.out.println("db count -> " + mDbHelper.getAppTableCount(mDbHelper.getReadableDatabase()));
                 ArrayList<PackageVO> nullList = MyApplication.getmDbHelper().getNullCategroyList(MyApplication.getmDbHelper().getReadableDatabase());
-//                if (nullList.size() > 0) {
-//                    Intent categroyIntent = new Intent(getApplicationContext(), AppCategroyServer.class);
-//                    categroyIntent.putStringArrayListExtra("nullList", nullList);
-//                    startService(categroyIntent);
-//                }
+                if (nullList.size() > 0) {
+                    Intent categroyIntent = new Intent(getApplicationContext(), AppCategroyServer.class);
+                    startService(categroyIntent);
+                }
             }
         });
     }

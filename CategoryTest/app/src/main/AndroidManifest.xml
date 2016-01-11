@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.GET_TASKS" />
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name="com.example.cam.MyApplication"
@@ -32,6 +33,14 @@
         </service>
         <service android:name="com.baidu.location.f" android:enabled="true"
             android:process=":remote">
+        </service>
+
+        <service android:name="com.example.cam.server.NotificationServer"
+            android:label="NotificationServer"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
         </service>
 
         <receiver android:name="com.example.cam.broadcast.ScreenBroadcastReceiver"/>
