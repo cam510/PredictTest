@@ -84,10 +84,9 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
         //解除注释 启动分类应用服务
         runDB();
 
-        startService(new Intent(this, GetCurrentAppServer.class));
 //        startService(new Intent(this, NotificationServer.class));
-        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
-        startActivity(intent);
+//        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+//        startActivity(intent);
 //        try {
 //            if (ActivityUtil.hasSomePermission("android.permission.BIND_NOTIFICATION_LISTENER_SERVICE", getApplicationContext())) {
 //                startService(new Intent(this, NotificationServer.class));
@@ -111,6 +110,8 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
         } else {
             MyApplication.getmDbHelper().queryCategroy(MyApplication.getmDbHelper().getReadableDatabase());
         }
+        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+        startActivity(intent);
     }
 
     @Override

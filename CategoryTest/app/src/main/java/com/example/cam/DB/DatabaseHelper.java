@@ -330,10 +330,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cv.put(TableIndex.Session.LOCATION, location);
             cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())]);
             db.insert(getSessionTableName(), null, cv);
-            Cursor cr = db.query(getSessionTableName(), null, null, null, null, null, null);
-            while (cr.moveToNext()) {
-                System.out.println("" + cr.getString(0));
-            }
+//            Cursor cr = db.query(getSessionTableName(), null, null, null, null, null, null);
+//            while (cr.moveToNext()) {
+//                System.out.println("" + cr.getString(0));
+//            }
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
@@ -341,7 +341,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void updateIntimate (SQLiteDatabase db, ReceviceObject recevice) {
+    public void updateIntimate (SQLiteDatabase db, ReceviceObject recevice, boolean add) {
         try {
             if (!tabIsExist(TableIndex.Intimate.TABLE_NAME)) {
                 db.execSQL(CREATE_NOTIICATION_TABLE);
@@ -364,11 +364,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     db.insert(TableIndex.Intimate.TABLE_NAME, null, cv);
                 } else {
                     cursor.moveToFirst();
-                    int intimate = cursor.getInt(cursor.getColumnIndex(TableIndex.Intimate.INTIMACY));
-                    intimate++;
+                    if (add) {
+                        int intimate = cursor.getInt(cursor.getColumnIndex(TableIndex.Intimate.INTIMACY));
+                        intimate++;
+                        cv.put(TableIndex.Intimate.INTIMACY, intimate);
+                    }
                     int receviceCount = cursor.getInt(cursor.getColumnIndex(TableIndex.Intimate.RECEIVE_COUNT));
                     receviceCount++;
-                    cv.put(TableIndex.Intimate.INTIMACY, intimate);
                     cv.put(TableIndex.Intimate.RECEIVE_COUNT, receviceCount);
                     db.update(TableIndex.Intimate.TABLE_NAME, cv, TableIndex.Intimate.APP_PACKAGE + " = ?", new String[]{recevice.getPackName()});
                 }

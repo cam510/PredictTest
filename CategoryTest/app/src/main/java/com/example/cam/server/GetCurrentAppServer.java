@@ -71,9 +71,6 @@ public class GetCurrentAppServer extends IntentService{
                             lastApp = runningActivity;
                             MyApplication.getmDbHelper().updateAppLauncher(MyApplication.getmDbHelper().getWritableDatabase(), lastApp);
                             MyApplication.getmDbHelper().updatePeriod(MyApplication.getmDbHelper().getWritableDatabase(), lastApp);
-//                            Intent locationServer = new Intent(getApplicationContext(), LocationServer.class);
-//                            locationServer.putExtra("packName", lastApp);
-//                            getApplicationContext().startService(locationServer);
                             MyApplication.myListener.setCurPackName(lastApp);
                             setLocationOption();
                             if (mLocClient.isStarted()) {
