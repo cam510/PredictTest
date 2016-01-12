@@ -143,7 +143,9 @@ public class NotificationServer extends NotificationListenerService {
             if (Intent.ACTION_SCREEN_ON.equals(action)) {
                 Log.i(LOG_TAG, "screen on");
                 isScreenOn = true;
-                if (!closeApp.equals(lastApp)) {
+                if (!closeApp.equals(lastApp)
+                        && !lastApp.equalsIgnoreCase(getApplicationContext().getPackageName())
+                        && !closeApp.equalsIgnoreCase(getApplicationContext().getPackageName())) {
                     ActivityUtil.launcherPredictApp(context, mHandler, closeApp);
                 }
             } else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
