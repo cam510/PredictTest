@@ -64,7 +64,8 @@ public class NotificationServer extends NotificationListenerService {
                         if (!lastApp.equals(runningActivity)
                                 && isScreenOn
                                 && !runningActivity.contains("LAUNCHER")
-                                && !runningActivity.contains("launcher")) {
+                                && !runningActivity.contains("launcher")
+                                && !runningActivity.contains("homescreen")) {
                             lastApp = runningActivity;
                             MyApplication.getmDbHelper().updateAppLauncher(MyApplication.getmDbHelper().getWritableDatabase(), lastApp);
                             MyApplication.getmDbHelper().updatePeriod(MyApplication.getmDbHelper().getWritableDatabase(), lastApp);
@@ -178,7 +179,6 @@ public class NotificationServer extends NotificationListenerService {
         ArrayList<ActivityManager.RunningServiceInfo> runningService = (ArrayList<ActivityManager.RunningServiceInfo>) myManager
                 .getRunningServices(30);
         for (int i = 0; i < runningService.size(); i++) {
-            System.out.println("running service is -> " + runningService.get(i).service.getClassName().toString());
             if (runningService.get(i).service.getClassName().toString()
                     .equals(className)) {
                 return true;

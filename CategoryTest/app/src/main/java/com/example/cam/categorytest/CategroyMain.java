@@ -121,6 +121,9 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
             onRunButtonPressed();
         } else {
             MyApplication.getmDbHelper().queryCategroy(MyApplication.getmDbHelper().getReadableDatabase());
+            Message m = Message.obtain();
+            m.what = DISSMISS_DIALOG;
+            mHandler.sendEmptyMessage(m.what);
         }
 //        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
 //        startActivity(intent);
