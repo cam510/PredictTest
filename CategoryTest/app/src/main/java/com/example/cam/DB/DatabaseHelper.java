@@ -245,7 +245,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void updateAppLauncher (SQLiteDatabase db, String packName) {
-        System.out.println("enter update");
+        System.out.println("enter update " + packName);
         try {
             int count = 0;
             Cursor cursor = db.query(TableIndex.App.TABLE_NAME,
@@ -253,9 +253,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     TableIndex.App.APP_PACKAGE + " = ?" ,
                     new String[] {packName}, null, null, null);
             if (cursor != null) {
-                cursor.moveToNext();
-                count = cursor.getInt(0);
-                count++;
+                if (cursor.getCount() > 0) {
+                    cursor.moveToNext();
+                    if (cursor.getColumnCount() > 0) {
+                        count = cursor.getInt(0);
+                        count++;
+                    }
+                }
             } else {
                 return;
             }
@@ -329,6 +333,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cv.put(TableIndex.Session.APP_PACKAGE, packName);
             cv.put(TableIndex.Session.LOCATION, location);
             cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())]);
+            cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
             db.insert(getSessionTableName(), null, cv);
 //            Cursor cr = db.query(getSessionTableName(), null, null, null, null, null, null);
 //            while (cr.moveToNext()) {

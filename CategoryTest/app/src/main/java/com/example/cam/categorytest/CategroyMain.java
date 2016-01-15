@@ -1,6 +1,7 @@
 package com.example.cam.categorytest;
 
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -48,10 +49,14 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
 
     private int mGlobalIndex = 0;
     private String LOG_TAG = "CategroyMain";
+    private static final int GET_NEXT_CATEGROY = 0;
+    private static final int DISSMISS_DIALOG = 1;
 
     private ArrayList<PackageVO> nullList;
     private Handler mHandler;
     private final List<RequestHandle> requestHandles = new LinkedList<RequestHandle>();
+
+    private AlertDialog initDialog;
 
     private AsyncHttpClient asyncHttpClient = new AsyncHttpClient() {
 
@@ -74,13 +79,20 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
-                if (mGlobalIndex < nullList.size()) {
-                    mGlobalIndex++;
-                    onRunButtonPressed();
+                if (msg.what == GET_NEXT_CATEGROY) {
+                    if (mGlobalIndex < nullList.size()) {
+                        mGlobalIndex++;
+                        onRunButtonPressed();
+                    }
+                } else if (msg.what == DISSMISS_DIALOG){
+                    if (initDialog.isShowing()) {
+                        initDialog.dismiss();
+                    }
                 }
             }
         };
 
+        showProcessDialog();
         //解除注释 启动分类应用服务
         runDB();
 
@@ -110,8 +122,8 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
         } else {
             MyApplication.getmDbHelper().queryCategroy(MyApplication.getmDbHelper().getReadableDatabase());
         }
-        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
-        startActivity(intent);
+//        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+//        startActivity(intent);
     }
 
     @Override
@@ -222,7 +234,9 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
                         nullList.get(mGlobalIndex).category = (String) jsonOb.get("category");
                     }
                 }
-                mHandler.sendEmptyMessage(0);
+                Message m = Message.obtain();
+                m.what = GET_NEXT_CATEGROY;
+                mHandler.sendEmptyMessage(m.what);
                 return null;
             }
 
@@ -230,7 +244,12 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
     }
 
     private void showAllCategroy() {
+        Message m = Message.obtain();
+        m.what = DISSMISS_DIALOG;
+        mHandler.sendEmptyMessage(m.what);
         MyApplication.getmDbHelper().updateAppCategroy(MyApplication.getmDbHelper().getWritableDatabase(), nullList);
+        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+        startActivity(intent);
     }
 
     public List<Header> getRequestHeadersList() {
@@ -292,6 +311,14 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
     @Override
     public RequestHandle executeSample(AsyncHttpClient client, String URL, Header[] headers, HttpEntity entity, ResponseHandlerInterface responseHandler) {
         return client.get(this, URL, headers, null, responseHandler);
+    }
+
+    private void showProcessDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle("init enterment plese wait")
+                .setCancelable(false);
+        initDialog = builder.create();
+        initDialog.show();
     }
 
 }

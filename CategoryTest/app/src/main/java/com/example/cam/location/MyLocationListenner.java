@@ -5,6 +5,12 @@ import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.example.cam.MyApplication;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Created by cam on 1/11/16.
  */
@@ -15,6 +21,9 @@ public class MyLocationListenner implements BDLocationListener {
     public MyLocationListenner () {}
 
     private String curPackName = "";
+    private String lastLocation = "";
+
+    private static Map<String, Integer> mLocationMap = new HashMap<String, Integer>() ;
 
     public MyLocationListenner(LocationClient locationClient) {
         mLocationClient = locationClient;
@@ -63,9 +72,22 @@ public class MyLocationListenner implements BDLocationListener {
         String locationStr = "";
         if (location.getTime() == null || location.getTime().equals("")) {
             System.out.println("time is null");
+            if (!lastLocation.equals("")) {
+                locationStr = lastLocation;
+            } else {
+                locationStr = getMaxLocation();
+            }
         } else {
             System.out.println("location is -> " + location.getAddrStr());
             locationStr = location.getAddrStr();
+            lastLocation = locationStr;
+            if (mLocationMap.get(locationStr) == null) {
+                mLocationMap.put(locationStr, 1);
+            } else {
+                int count = mLocationMap.get(locationStr);
+                count++;
+                mLocationMap.put(locationStr, count);
+            }
         }
         MyApplication.getmDbHelper().insertSession(curPackName, locationStr);
         mLocationClient.stop();
@@ -108,4 +130,19 @@ public class MyLocationListenner implements BDLocationListener {
     public void setCurPackName(String curPackName) {
         this.curPackName = curPackName;
     }
+
+    public static String getMaxLocation() {
+//        for (HashMap<String, Integer> m : mLocationMap) {
+//
+//        }
+        String maxLocation = "";
+        int tempCount = 0;
+        for(HashMap.Entry<String, Integer> entry : mLocationMap.entrySet()) {
+            if (entry.getValue() > tempCount) {
+                maxLocation = entry.getKey();
+            }
+        }
+        return maxLocation;
+    }
+
 }

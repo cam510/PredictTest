@@ -3,8 +3,6 @@ package com.example.cam.server;
 /**
  * Created by cam on 1/11/16.
  */
-
-
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.TargetApi;
@@ -132,8 +130,14 @@ public class NotificationServer extends NotificationListenerService {
     }
 
     private String getRunningAppPackName() {
-        ActivityManager activityManager = (ActivityManager) getSystemService(getApplicationContext().ACTIVITY_SERVICE);
-        return activityManager.getRunningAppProcesses().get(0).pkgList[0];
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            ActivityManager activityManager=(ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+            String runningActivity=activityManager.getRunningTasks(1).get(0).topActivity.getPackageName();
+            return runningActivity;
+        } else {
+            ActivityManager activityManager = (ActivityManager) getSystemService(getApplicationContext().ACTIVITY_SERVICE);
+            return activityManager.getRunningAppProcesses().get(0).pkgList[0];
+        }
     }
 
     private BroadcastReceiver ScreenBroadcastReceiverTest = new BroadcastReceiver() {

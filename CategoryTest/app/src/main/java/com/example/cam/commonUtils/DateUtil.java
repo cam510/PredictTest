@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat;
  */
 public class DateUtil {
 
-    public static String[] dataArray = new String[] {
+    public static String[] dataArray = new String[]{
             TableIndex.Period._0_1,
             TableIndex.Period._1_2,
             TableIndex.Period._2_3,
@@ -34,6 +34,8 @@ public class DateUtil {
             TableIndex.Period._21_22,
             TableIndex.Period._22_23,
             TableIndex.Period._23_24};
+
+    private static long oneDay = 1000*60*60*24;
 
     public static String formatDateWithoutHour(long date) {
         SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
