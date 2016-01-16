@@ -147,6 +147,7 @@ public class NotificationServer extends NotificationListenerService {
             String action = intent.getAction();
             if (Intent.ACTION_SCREEN_ON.equals(action)) {
                 Log.i(LOG_TAG, "screen on");
+                MyApplication.getmDbHelper().insertSession("screenon", "");
                 isScreenOn = true;
                 if (!closeApp.equals(lastApp)
                         && !lastApp.equalsIgnoreCase(getApplicationContext().getPackageName())
