@@ -65,7 +65,8 @@ public class NotificationServer extends NotificationListenerService {
                                 && isScreenOn
                                 && !runningActivity.contains("LAUNCHER")
                                 && !runningActivity.contains("launcher")
-                                && !runningActivity.contains("homescreen")) {
+                                && !runningActivity.contains("homescreen")
+                                && !runningActivity.contains("systemui")) {
                             lastApp = runningActivity;
                             MyApplication.getmDbHelper().updateAppLauncher(MyApplication.getmDbHelper().getWritableDatabase(), lastApp);
                             MyApplication.getmDbHelper().updatePeriod(MyApplication.getmDbHelper().getWritableDatabase(), lastApp);
