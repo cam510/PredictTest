@@ -33,6 +33,7 @@ public class MyApplication extends Application{
         mDbHelper = new DatabaseHelper(this);
         mDbHelper.onCreate(mDbHelper.getWritableDatabase());
 
+        //百度定位
         mLocationClient = new LocationClient(this);
         myListener = new MyLocationListenner(mLocationClient);
         mLocationClient.registerLocationListener(myListener);

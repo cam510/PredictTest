@@ -93,7 +93,7 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
         };
 
         showProcessDialog();
-        //解除注释 启动分类应用服务
+
         runDB();
 
 //        startService(new Intent(this, NotificationServer.class));
@@ -120,13 +120,11 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
         if (nullList.size() > 0) {
             onRunButtonPressed();
         } else {
-            MyApplication.getmDbHelper().queryCategroy(MyApplication.getmDbHelper().getReadableDatabase());
+//            MyApplication.getmDbHelper().queryCategroy(MyApplication.getmDbHelper().getReadableDatabase());
             Message m = Message.obtain();
             m.what = DISSMISS_DIALOG;
             mHandler.sendEmptyMessage(m.what);
         }
-//        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
-//        startActivity(intent);
     }
 
     @Override
@@ -138,18 +136,20 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
         return this;
     }
 
+    //重写第三方网络接口
     @Override
     public List<RequestHandle> getRequestHandles() {
         return null;
     }
 
+    //重写第三方网络接口
     @Override
     public void addRequestHandle(RequestHandle handle) {
         if (null != handle) {
             requestHandles.add(handle);
         }
     }
-
+    //查询应用分类
     @Override
     public void onRunButtonPressed() {
         System.out.println("mGlobalIndex -> " + mGlobalIndex);
@@ -164,17 +164,20 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
         }
     }
 
+    //重写第三方网络接口
     @Override
     public void onCancelButtonPressed() {
 
     }
 
+    //重写第三方网络接口
     @Override
     public Header[] getRequestHeaders() {
         List<Header> headers = getRequestHeadersList();
         return headers.toArray(new Header[headers.size()]);
     }
 
+    //重写第三方网络接口
     @Override
     public HttpEntity getRequestEntity() {
         String bodyText;
@@ -188,21 +191,26 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
         return null;
     }
 
+    //重写第三方网络接口
     @Override
     public AsyncHttpClient getAsyncHttpClient() {
         return this.asyncHttpClient;
     }
 
+    //重写第三方网络接口
     @Override
     public void setAsyncHttpClient(AsyncHttpClient client) {
 
     }
 
+    //重写第三方网络接口
     @Override
     public AsyncHttpRequest getHttpRequest(DefaultHttpClient client, HttpContext httpContext, HttpUriRequest uriRequest, String contentType, ResponseHandlerInterface responseHandler, Context context) {
         return null;
     }
 
+    //重写第三方网络接口
+    //解析返回json
     @Override
     public ResponseHandlerInterface getResponseHandler() {
         return new BaseJsonHttpResponseHandler<SampleJSON>() {
@@ -246,6 +254,7 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
         };
     }
 
+    //更新数据库应用分类
     private void showAllCategroy() {
         Message m = Message.obtain();
         m.what = DISSMISS_DIALOG;
@@ -255,6 +264,7 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
         startActivity(intent);
     }
 
+    //重写第三方网络接口
     public List<Header> getRequestHeadersList() {
         List<Header> headers = new ArrayList<Header>();
         String headersRaw = null;
@@ -281,36 +291,43 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
         return headers;
     }
 
+    //重写第三方网络接口
     @Override
     public String getDefaultURL() {
         return null;
     }
 
+    //重写第三方网络接口
     @Override
     public String getDefaultHeaders() {
         return null;
     }
 
+    //重写第三方网络接口
     @Override
     public boolean isRequestHeadersAllowed() {
         return false;
     }
 
+    //重写第三方网络接口
     @Override
     public boolean isRequestBodyAllowed() {
         return false;
     }
 
+    //重写第三方网络接口
     @Override
     public int getSampleTitle() {
         return 0;
     }
 
+    //重写第三方网络接口
     @Override
     public boolean isCancelButtonAllowed() {
         return false;
     }
 
+    //重写第三方网络接口
     @Override
     public RequestHandle executeSample(AsyncHttpClient client, String URL, Header[] headers, HttpEntity entity, ResponseHandlerInterface responseHandler) {
         return client.get(this, URL, headers, null, responseHandler);

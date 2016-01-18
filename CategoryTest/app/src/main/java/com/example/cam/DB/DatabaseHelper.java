@@ -23,6 +23,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private final static String DB_NAME = "predict";
     private static final int DATABASE_VERSION = 1;
 
+    //创建app表
     private String CREATE_APP_TABLE = "CREATE TABLE IF NOT EXISTS " +
             TableIndex.App.TABLE_NAME + " ( "
             + TableIndex.App.APP_PACKAGE + " TEXT PRIMARY KEY, "
@@ -31,6 +32,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + TableIndex.App.APP_ALL_LAUNCHER_COUNT + " INTEGER DEFAULT 0"
             + " )";
 
+    //创建session表
     private String CREATE_SESSION_TABLE = "CREATE TABLE IF NOT EXISTS " +
             "Session_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis()) +" ( "
             + TableIndex.Session.APP_PACKAGE + " TEXT , "
@@ -39,6 +41,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + TableIndex.Session.TIME_PERIOD + " TEXT DEFAULT NULL"
             + " )";
 
+    //创建notification表
     private String CREATE_NOTIICATION_TABLE = "CREATE TABLE IF NOT EXISTS " +
             TableIndex.Notiication.TABLE_NAME + " ( "
             + TableIndex.Notiication.APP_PACKAGE + " TEXT , "
@@ -46,6 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + TableIndex.Notiication.OPEN_TIME + " TEXT DEFAULT NULL "
             + " )";
 
+    //创建亲密度表
     private String CREATE_INTIMATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
             TableIndex.Intimate.TABLE_NAME + " ( "
             + TableIndex.Intimate.APP_PACKAGE + " TEXT PRIMARY KEY, "
@@ -53,6 +57,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + TableIndex.Intimate.RECEIVE_COUNT + " INTEGER DEFAULT 0"
             + " )";
 
+    //创建使用区间表
     private String CREATE_PERIOD_TABLE = "CREATE TABLE IF NOT EXISTS " +
             "Period_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis()) +" ( "
             + TableIndex.Period.APP_PACKAGE + " TEXT PRIMARY KEY, "
@@ -105,6 +110,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
+    //判断是否存在表
     public boolean tabIsExist(String tabName) {
         boolean result = false;
         if (tabName == null) {
@@ -143,6 +149,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    //插入应用到app表
     public void insertAppTable(SQLiteDatabase db, ArrayList<PackageVO> appList) {
         try {
             if (!tabIsExist(TableIndex.App.TABLE_NAME)) {
@@ -168,6 +175,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    //unuse
     public int getAppTableCount(SQLiteDatabase db) {
         try {
             if (!tabIsExist(TableIndex.App.TABLE_NAME)) {
@@ -199,6 +207,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    //获取未分类应用
     public ArrayList<PackageVO> getNullCategroyList(SQLiteDatabase db) {
         ArrayList<PackageVO> nullCategroyList = new ArrayList<PackageVO>();
         try {
@@ -225,6 +234,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return nullCategroyList;
     }
 
+    //更新应用分类
     public void updateAppCategroy (SQLiteDatabase db, ArrayList<PackageVO> appList) {
         System.out.println("enter update");
         try {
@@ -244,6 +254,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    //更新应用打开次数
     public void updateAppLauncher (SQLiteDatabase db, String packName) {
         System.out.println("enter update " + packName);
         try {
@@ -258,7 +269,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     if (cursor.getColumnCount() > 0) {
                         count = cursor.getInt(0);
                         count++;
+                    } else {
+                        return;
                     }
+                } else {
+                    return;
                 }
             } else {
                 return;
@@ -273,6 +288,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    //查询并应用分类
     public void queryCategroy (SQLiteDatabase db) {
         try {
             Cursor cr = db.query(TableIndex.App.TABLE_NAME, null, null, null, null, null, null, null);
@@ -288,6 +304,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    //更新应用使用时区
     public void updatePeriod (SQLiteDatabase db, String packName) {
         try {
             if (!tabIsExist(getPeriodTableName())) {
@@ -322,6 +339,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    //插入到session表
     public void insertSession( String packName, String location) {
         SQLiteDatabase db = this.getWritableDatabase();
         System.out.println("enter insertSession " + db.getPath());
@@ -346,6 +364,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    //更新亲密度
     public void updateIntimate (SQLiteDatabase db, ReceviceObject recevice, boolean add) {
         try {
             if (!tabIsExist(TableIndex.Intimate.TABLE_NAME)) {

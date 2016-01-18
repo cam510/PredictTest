@@ -54,6 +54,7 @@ public class NotificationServer extends NotificationListenerService {
 
         mLocClient = MyApplication.mLocationClient;
         setLocationOption();
+        //启动线程，不断检测当前应用
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -86,6 +87,7 @@ public class NotificationServer extends NotificationListenerService {
         }).start();
     }
 
+    //通知栏收到通知
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         System.out.println("open" + "-----" + sbn.toString());
@@ -104,6 +106,7 @@ public class NotificationServer extends NotificationListenerService {
         }
     }
 
+    //通知栏移除通知
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
         System.out.println("shut"+"-----"+sbn.toString());
@@ -131,6 +134,7 @@ public class NotificationServer extends NotificationListenerService {
         System.out.println("onDestroy NotificationServer");
     }
 
+    //获取当前运行应用
     private String getRunningAppPackName() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             ActivityManager activityManager=(ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
@@ -142,6 +146,7 @@ public class NotificationServer extends NotificationListenerService {
         }
     }
 
+    //屏幕开光广播
     private BroadcastReceiver ScreenBroadcastReceiverTest = new BroadcastReceiver() {
         @Override
         public void onReceive(final Context context, Intent intent) {
@@ -153,7 +158,7 @@ public class NotificationServer extends NotificationListenerService {
                 if (!closeApp.equals(lastApp)
                         && !lastApp.equalsIgnoreCase(getApplicationContext().getPackageName())
                         && !closeApp.equalsIgnoreCase(getApplicationContext().getPackageName())) {
-                    ActivityUtil.launcherPredictApp(context, mHandler, closeApp);
+//                    ActivityUtil.launcherPredictApp(context, mHandler, closeApp);
                 }
             } else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
                 Log.i(LOG_TAG, "screen off");
@@ -192,7 +197,7 @@ public class NotificationServer extends NotificationListenerService {
     //设置相关参数
     private void setLocationOption(){
         LocationClientOption option = new LocationClientOption();
-        option.setOpenGps(true);				//打开gps
+        option.setOpenGps(false);				//打开gps
         option.setAddrType("all");		//设置地址信息，仅设置为“all”时有地址信息，默认无地址信息
         option.setScanSpan(0);	//设置定位模式，小于1秒则一次定位;大于等于1秒则定时定位
         mLocClient.setLocOption(option);

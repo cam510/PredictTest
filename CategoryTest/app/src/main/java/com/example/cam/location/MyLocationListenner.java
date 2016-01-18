@@ -13,6 +13,7 @@ import java.util.Set;
 
 /**
  * Created by cam on 1/11/16.
+ * 重写百度地图定位
  */
 public class MyLocationListenner implements BDLocationListener {
 
@@ -34,41 +35,6 @@ public class MyLocationListenner implements BDLocationListener {
         if (location == null) {
             return ;
         }
-//        StringBuffer sb = new StringBuffer(256);
-//        sb.append("time : ");
-//        sb.append(location.getTime());
-//        sb.append("\nerror code : ");
-//        sb.append(location.getLocType());
-//        sb.append("\nlatitude : ");
-//        sb.append(location.getLatitude());
-//        sb.append("\nlontitude : ");
-//        sb.append(location.getLongitude());
-//        sb.append("\nradius : ");
-//        sb.append(location.getRadius());
-//        if (location.getLocType() == BDLocation.TypeGpsLocation){
-//            System.out.println("Type Gps Location");
-//            sb.append("\nspeed : ");
-//            sb.append(location.getSpeed());
-//            sb.append("\nsatellite : ");
-//            sb.append(location.getSatelliteNumber());
-//        } else if (location.getLocType() == BDLocation.TypeNetWorkLocation){
-//            System.out.println("Type NetWork Location");
-//            sb.append("\n省:");
-//            System.out.println("省:" + location.getProvince());
-//            sb.append(location.getProvince());
-//            sb.append("\n市");
-//            System.out.println("市" + location.getCity());
-//            sb.append(location.getCity());
-//            sb.append("\n区/县:");
-//            System.out.println("区/县:" + location.getDistrict());
-//            sb.append(location.getDistrict());
-//            sb.append("\naddr : ");
-//            System.out.println("全地址:" + location.getAddrStr());
-//            sb.append(location.getAddrStr());
-//        }
-//        sb.append("\nsdk version : ");
-//        sb.append(mLocationClient.getVersion());
-//        System.out.println(sb.toString());
         String locationStr = "";
         if (location.getTime() == null || location.getTime().equals("")) {
             System.out.println("time is null");
@@ -132,9 +98,6 @@ public class MyLocationListenner implements BDLocationListener {
     }
 
     public static String getMaxLocation() {
-//        for (HashMap<String, Integer> m : mLocationMap) {
-//
-//        }
         String maxLocation = "";
         int tempCount = 0;
         for(HashMap.Entry<String, Integer> entry : mLocationMap.entrySet()) {

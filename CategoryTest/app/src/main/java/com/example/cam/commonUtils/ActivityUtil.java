@@ -34,6 +34,18 @@ public class ActivityUtil {
             @Override
             public void run() {
                 try {
+                    Intent home = new Intent(Intent.ACTION_MAIN);
+                    home.addCategory(Intent.CATEGORY_HOME);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }, 500);
+
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                try {
                     System.out.println("launcherPredictApp --> " + lastApp);
                     Intent intent = context.getPackageManager().getLaunchIntentForPackage(lastApp);
                     context.startActivity(intent);
