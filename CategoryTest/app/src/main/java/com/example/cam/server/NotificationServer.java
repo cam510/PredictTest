@@ -1,5 +1,6 @@
 package com.example.cam.server;
 
+import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -23,6 +24,7 @@ import java.util.HashMap;
 /**
  * Created by cam on 1/27/16.
  */
+@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class NotificationServer extends NotificationListenerService {
 
     private String LOG_TAG = "NotificationServer";
