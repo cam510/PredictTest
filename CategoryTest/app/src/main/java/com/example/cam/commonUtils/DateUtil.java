@@ -9,6 +9,8 @@ import java.text.SimpleDateFormat;
  */
 public class DateUtil {
 
+    public static long ONE_DAY = 86400000;
+
     public static String[] dataArray = new String[]{
             TableIndex.Period._0_1,
             TableIndex.Period._1_2,

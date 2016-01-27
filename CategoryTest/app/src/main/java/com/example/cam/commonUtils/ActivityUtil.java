@@ -27,8 +27,18 @@ public class ActivityUtil {
         });
     }
 
-    public static void launcherPredictApp(final Context context, Handler handler, final String lastApp) {
-        startWeChat(context, handler);
+    public static void launcherPredictApp(final Context context, Handler handler, final String predictApp, final String lastApp) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Intent intent = context.getPackageManager().getLaunchIntentForPackage(predictApp);
+                    context.startActivity(intent);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
 
         mHandler.postDelayed(new Runnable() {
             @Override
@@ -46,7 +56,6 @@ public class ActivityUtil {
             @Override
             public void run() {
                 try {
-                    System.out.println("launcherPredictApp --> " + lastApp);
                     Intent intent = context.getPackageManager().getLaunchIntentForPackage(lastApp);
                     context.startActivity(intent);
                 } catch (Exception ex) {

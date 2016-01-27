@@ -24,6 +24,7 @@ import com.example.cam.httpUtil.RequestHandle;
 import com.example.cam.httpUtil.ResponseHandlerInterface;
 import com.example.cam.httpUtil.SampleInterface;
 import com.example.cam.httpUtil.SampleJSON;
+import com.example.cam.predict.PredictUtil;
 import com.example.cam.server.AppCategroyServer;
 import com.example.cam.server.GetCurrentAppServer;
 import com.example.cam.server.LocationServer;
@@ -55,6 +56,7 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
     private ArrayList<PackageVO> nullList;
     private Handler mHandler;
     private final List<RequestHandle> requestHandles = new LinkedList<RequestHandle>();
+    private PredictUtil predictUtil;
 
     private AlertDialog initDialog;
 
@@ -88,6 +90,7 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
                     if (initDialog.isShowing()) {
                         initDialog.dismiss();
                     }
+                    predictUtil = PredictUtil.getmInstance((MyApplication)getApplicationContext());
                 }
             }
         };
@@ -121,6 +124,7 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
             onRunButtonPressed();
         } else {
 //            MyApplication.getmDbHelper().queryCategroy(MyApplication.getmDbHelper().getReadableDatabase());
+            startService();
             Message m = Message.obtain();
             m.what = DISSMISS_DIALOG;
             mHandler.sendEmptyMessage(m.what);
@@ -154,6 +158,9 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
     public void onRunButtonPressed() {
         System.out.println("mGlobalIndex -> " + mGlobalIndex);
         if (mGlobalIndex == nullList.size()) {
+            Message m = Message.obtain();
+            m.what = DISSMISS_DIALOG;
+            mHandler.sendEmptyMessage(m.what);
             showAllCategroy();
         } else {
             addRequestHandle(executeSample(getAsyncHttpClient(),
@@ -256,10 +263,12 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
 
     //更新数据库应用分类
     private void showAllCategroy() {
-        Message m = Message.obtain();
-        m.what = DISSMISS_DIALOG;
-        mHandler.sendEmptyMessage(m.what);
         MyApplication.getmDbHelper().updateAppCategroy(MyApplication.getmDbHelper().getWritableDatabase(), nullList);
+        startService();
+    }
+
+    private void startService() {
+        startService(new Intent(getApplicationContext(), NotificationServer.class));
         Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
         startActivity(intent);
     }

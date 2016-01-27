@@ -9,10 +9,12 @@ import android.util.Log;
 
 import com.example.cam.categoryUtil.PackageVO;
 import com.example.cam.commonUtils.DateUtil;
+import com.example.cam.predict.PredictBean;
 import com.example.cam.server.ReceviceObject;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by cam on 1/7/16.
@@ -404,5 +406,100 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } finally {
             db.close();
         }
+    }
+
+    /**
+     * 暂定
+     * 获取过去一天的数据
+     */
+    public HashMap<String, Integer> getLastDayApp() {
+        HashMap<String, Integer> dbData = new HashMap<String, Integer>();
+        String lastDay = "Session_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis() - DateUtil.ONE_DAY);
+        if (!tabIsExist(lastDay)) {
+            lastDay = "Session_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis());
+        }
+//        String lastDay = "Session_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis());
+
+        Cursor c = this.getReadableDatabase().query(lastDay,
+                new String[] {TableIndex.Session.APP_PACKAGE},
+                null, null, null, null, null);
+        dbData.clear();
+        if (c != null && c.getCount() > 0) {
+            dbData.put("all", c.getCount());
+            while (c.moveToNext()) {
+                String packName = c.getString(0);
+                if (packName != null && packName.equals("screenon")) {
+                    continue;
+                }
+                if (dbData.containsKey(packName)) {
+                    int count = dbData.get(packName);
+                    count++;
+                    dbData.put(packName, count);
+                } else {
+                    dbData.put(packName, 1);
+                }
+            }
+        }
+
+        return dbData;
+    }
+
+    /**
+     * 暂定
+     * 获取过去一天该时段的数据
+     */
+    public HashMap<String, Integer> getLastDayPeriodApp() {
+        HashMap<String, Integer> dbData = new HashMap<String, Integer>();
+        String lastDay = "Session_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis() - DateUtil.ONE_DAY);
+        if (!tabIsExist(lastDay)) {
+            lastDay = "Session_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis());
+        }
+//        String lastDay = "Session_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis());
+
+        Cursor c = this.getReadableDatabase().query(lastDay,
+                new String[] {TableIndex.Session.APP_PACKAGE},
+                " " + TableIndex.Session.TIME_PERIOD + " = ? ",
+                new String[] {DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())]},
+                null, null, null);
+        dbData.clear();
+        if (c != null && c.getCount() > 0) {
+            dbData.put("all", c.getCount());
+            while (c.moveToNext()) {
+                String packName = c.getString(0);
+                if (packName != null && packName.equals("screenon")) {
+                    continue;
+                }
+                if (dbData.containsKey(packName)) {
+                    int count = dbData.get(packName);
+                    count++;
+                    dbData.put(packName, count);
+                } else {
+                    dbData.put(packName, 1);
+                }
+            }
+        }
+        return dbData;
+    }
+
+    /**
+     * 获取亲密度比例
+     */
+    public int getIntimate(String appName) {
+        int temp = 0;
+
+        Cursor c = this.getReadableDatabase().query(TableIndex.Intimate.TABLE_NAME,
+                new String[] {TableIndex.Intimate.INTIMACY, TableIndex.Intimate.RECEIVE_COUNT},
+                " " + TableIndex.Intimate.APP_PACKAGE + " = ? ",
+                new String[] {appName},
+                null, null, null);
+        if (c != null && c.getCount() > 0) {
+            c.moveToFirst();
+            int receviceCount = c.getInt(c.getColumnIndex(TableIndex.Intimate.RECEIVE_COUNT));
+            int intimate = c.getInt(c.getColumnIndex(TableIndex.Intimate.INTIMACY));
+            if (receviceCount > 0) {
+                temp = intimate * 100 / receviceCount;
+            }
+        }
+        return temp;
     }
 }

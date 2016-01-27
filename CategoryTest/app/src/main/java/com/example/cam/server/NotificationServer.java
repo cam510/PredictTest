@@ -1,51 +1,43 @@
 package com.example.cam.server;
 
-/**
- * Created by cam on 1/11/16.
- */
-import android.accessibilityservice.AccessibilityService;
-import android.accessibilityservice.AccessibilityServiceInfo;
-import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
-import android.speech.tts.TextToSpeech;
 import android.util.Log;
-import android.view.accessibility.AccessibilityEvent;
-import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.example.cam.MyApplication;
 import com.example.cam.commonUtils.ActivityUtil;
+import com.example.cam.predict.PredictUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
 
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+/**
+ * Created by cam on 1/27/16.
+ */
 public class NotificationServer extends NotificationListenerService {
 
     private String LOG_TAG = "NotificationServer";
 
     private LocationClient mLocClient;
 
-    private boolean isStart = true;
     private String lastApp = "";
     private String closeApp = "";
+    private String lastNotificaApp = "";
+    private boolean isStart = true;
     private boolean isScreenOn = true;
 
     private HashMap<String, ReceviceObject> myReceiveNotification = new HashMap<String, ReceviceObject>();
     private Handler mHandler = new Handler();
+    private PredictUtil predictUtil;
     @Override
     public void onCreate() {
         super.onCreate();
@@ -85,31 +77,44 @@ public class NotificationServer extends NotificationListenerService {
                 }
             }
         }).start();
+        predictUtil = PredictUtil.getmInstance((MyApplication)getApplication());
     }
 
     //通知栏收到通知
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         System.out.println("open" + "-----" + sbn.toString());
-        if (!sbn.getPackageName().contains("systemui")) {
-            if (myReceiveNotification.get(sbn.getPackageName()) == null) {
-                ReceviceObject recevice = new ReceviceObject(sbn.getPackageName(), System.currentTimeMillis());
-                myReceiveNotification.put(sbn.getPackageName(), recevice);
-            } else {
-                ReceviceObject recevice = myReceiveNotification.get(sbn.getPackageName());
-                int count = recevice.getReceviceCount();
-                count++;
-                recevice.setReceviceCount(count);
-                recevice.setReceviceTime(System.currentTimeMillis());
-                myReceiveNotification.put(sbn.getPackageName(), recevice);
+        if (lastNotificaApp.equals(sbn.getPackageName())) {
+            //防止重复多次查询重复app
+        } else {
+            lastNotificaApp = sbn.getPackageName();
+            //屏幕关闭时候收到通知判定是否需要预加载app
+            if (!isScreenOn && MyApplication.getmDbHelper().getIntimate(sbn.getPackageName()) > 70) {
+                System.out.println("intimate > 70 app " + lastNotificaApp);
+//                ActivityUtil.launcherPredictApp(getApplicationContext(), mHandler, lastNotificaApp, lastApp);
+            }
+            if (!sbn.getPackageName().contains("systemui")) {
+                if (myReceiveNotification.get(sbn.getPackageName()) == null) {
+                    ReceviceObject recevice = new ReceviceObject(sbn.getPackageName(), System.currentTimeMillis());
+                    myReceiveNotification.put(sbn.getPackageName(), recevice);
+                } else {
+                    ReceviceObject recevice = myReceiveNotification.get(sbn.getPackageName());
+                    int count = recevice.getReceviceCount();
+                    count++;
+                    recevice.setReceviceCount(count);
+                    recevice.setReceviceTime(System.currentTimeMillis());
+                    myReceiveNotification.put(sbn.getPackageName(), recevice);
+                }
             }
         }
+
+        super.onNotificationPosted(sbn);
     }
 
     //通知栏移除通知
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
-        System.out.println("shut"+"-----"+sbn.toString());
+        System.out.println("shut" + "-----" + sbn.toString());
         if (!sbn.getPackageName().contains("systemui")) {
             if (myReceiveNotification.get(sbn.getPackageName()) != null) {
                 ReceviceObject recevice = myReceiveNotification.get(sbn.getPackageName());
@@ -126,10 +131,11 @@ public class NotificationServer extends NotificationListenerService {
                 }
             }
         }
+        super.onNotificationRemoved(sbn);
     }
 
     @Override
-        public void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
         System.out.println("onDestroy NotificationServer");
     }
@@ -154,16 +160,18 @@ public class NotificationServer extends NotificationListenerService {
             if (Intent.ACTION_SCREEN_ON.equals(action)) {
                 Log.i(LOG_TAG, "screen on");
                 MyApplication.getmDbHelper().insertSession("screenon", "");
-                isScreenOn = true;
+//                isScreenOn = true;
                 if (!closeApp.equals(lastApp)
                         && !lastApp.equalsIgnoreCase(getApplicationContext().getPackageName())
                         && !closeApp.equalsIgnoreCase(getApplicationContext().getPackageName())) {
-//                    ActivityUtil.launcherPredictApp(context, mHandler, closeApp);
+//                    ActivityUtil.launcherPredictApp(context, mHandler, predictUtil.predictNextApp(), closeApp);
+                    System.out.println("predict NextApp is -> " + predictUtil.predictNextApp());
                 }
             } else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
                 Log.i(LOG_TAG, "screen off");
                 isScreenOn = false;
             } else if (Intent.ACTION_USER_PRESENT.equals(action)) {
+                isScreenOn = true;
                 Log.i(LOG_TAG, "screen unlock");
             } else if (Intent.ACTION_CLOSE_SYSTEM_DIALOGS.equals(intent.getAction())) {
                 Log.i(LOG_TAG, " receive Intent.ACTION_CLOSE_SYSTEM_DIALOGS");
@@ -182,7 +190,7 @@ public class NotificationServer extends NotificationListenerService {
 
     private boolean ServiceIsRunning(String className) {
         ActivityManager myManager = (ActivityManager)getApplicationContext().getSystemService(
-                        Context.ACTIVITY_SERVICE);
+                Context.ACTIVITY_SERVICE);
         ArrayList<ActivityManager.RunningServiceInfo> runningService = (ArrayList<ActivityManager.RunningServiceInfo>) myManager
                 .getRunningServices(30);
         for (int i = 0; i < runningService.size(); i++) {
@@ -203,5 +211,3 @@ public class NotificationServer extends NotificationListenerService {
         mLocClient.setLocOption(option);
     }
 }
-
-
