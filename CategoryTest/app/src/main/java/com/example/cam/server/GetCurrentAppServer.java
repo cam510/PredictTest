@@ -153,7 +153,7 @@ public class GetCurrentAppServer extends IntentService{
                 Log.i(LOG_TAG, "screen on");
                 isScreenOn = true;
                 if (!closeApp.equals(lastApp)) {
-                    ActivityUtil.launcherPredictApp(context, mHandler, closeApp);
+//                    ActivityUtil.launcherPredictApp(context, mHandler, closeApp);
                 }
             } else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
                 Log.i(LOG_TAG, "screen off");
