@@ -1,9 +1,14 @@
 package com.example.cam.location;
 
+import android.content.Intent;
+import android.view.WindowManager;
+
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.example.cam.MyApplication;
+import com.example.cam.categorytest.LocationTypeActivity;
+import com.example.cam.predict.PredictUtil;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,7 +27,7 @@ public class MyLocationListenner implements BDLocationListener {
     public MyLocationListenner () {}
 
     private String curPackName = "";
-    private String lastLocation = "";
+    private String lastLocation = "unkonow";
 
     private static Map<String, Integer> mLocationMap = new HashMap<String, Integer>() ;
 
@@ -55,8 +60,32 @@ public class MyLocationListenner implements BDLocationListener {
                 mLocationMap.put(locationStr, count);
             }
         }
-        MyApplication.getmDbHelper().insertSession(curPackName, locationStr);
+//        MyApplication.getmDbHelper().insertSession(curPackName, locationStr);
+        if (lastLocation == null || locationStr == null) {
+            if (lastLocation == null) {
+                lastLocation = "unknow";
+            }
+            if (locationStr == null) {
+                locationStr = "";
+            }
+        }
+        String getLocation = MyApplication.getmDbHelper().queryLocationType(locationStr);
+        if (getLocation == null
+                || getLocation.equals("")) {
+            if (!MyApplication.getAppInstance().isDialogShow()) {
+                MyApplication.getAppInstance().setIsDialogShow(true);
+                Intent i = new Intent(MyApplication.getAppInstance(), LocationTypeActivity.class);
+                i.putExtra("location", locationStr);
+                i.putExtra("appname", curPackName);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                MyApplication.getAppInstance().startActivity(i);
+            }
+        } else {
+            MyApplication.getmDbHelper().insertSession(curPackName, MyApplication.getLocationType());
+//            PredictUtil.getmInstance(MyApplication.getAppInstance()).getSomeDataFromPackName(curPackName);
+        }
         mLocationClient.stop();
+
     }
 
     public void onReceivePoi(BDLocation poiLocation) {
@@ -130,4 +159,8 @@ public class MyLocationListenner implements BDLocationListener {
         return maxLocation;
     }
 
+    public void showDialog() {
+//        dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+//        dialog.show();
+    }
 }

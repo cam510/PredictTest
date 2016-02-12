@@ -1,7 +1,9 @@
 package com.example.cam.DB;
 
+import android.app.ActionBar;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.pm.PackageInstaller;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -9,7 +11,9 @@ import android.util.Log;
 
 import com.example.cam.categoryUtil.PackageVO;
 import com.example.cam.commonUtils.DateUtil;
+import com.example.cam.predict.DataBean;
 import com.example.cam.predict.PredictBean;
+import com.example.cam.predict.PredictUtil;
 import com.example.cam.server.ReceviceObject;
 
 import java.sql.SQLException;
@@ -36,8 +40,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //创建session表
     private String CREATE_SESSION_TABLE = "CREATE TABLE IF NOT EXISTS " +
-            "Session_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis()) +" ( "
-            + TableIndex.Session.APP_PACKAGE + " TEXT , "
+            "Session_" + " ( "
+            + TableIndex.Session.ID + " INTEGER PRIMARY KEY,"
+            + TableIndex.Session.NOW_APP + " TEXT DEFAULT NULL, "
+            + TableIndex.Session.NEXT_APP + " TEXT DEFAULT NULL, "
             + TableIndex.Session.LOCATION + " TEXT DEFAULT NULL, "
             + TableIndex.Session.OPEN_TIME + " TEXT DEFAULT NULL, "
             + TableIndex.Session.TIME_PERIOD + " TEXT DEFAULT NULL"
@@ -57,6 +63,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + TableIndex.Intimate.APP_PACKAGE + " TEXT PRIMARY KEY, "
             + TableIndex.Intimate.INTIMACY + " INTEGER DEFAULT 0, "
             + TableIndex.Intimate.RECEIVE_COUNT + " INTEGER DEFAULT 0"
+            + " )";
+
+    //创建地理位置表
+    private String CREATE_LOCATION_TABLE = "CREATE TABLE IF NOT EXISTS " +
+            TableIndex.Location.TABLE_NAME + " ( "
+            + TableIndex.Location.ADDRESS + " TEXT PRIMARY KEY, "
+            + TableIndex.Location.ADDRESS_TYPE + " TEXT DEFAULT NULL"
             + " )";
 
     //创建使用区间表
@@ -105,6 +118,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 //        db.execSQL(CREATE_NOTIICATION_TABLE);
         db.execSQL(CREATE_INTIMATE_TABLE);
         db.execSQL(CREATE_PERIOD_TABLE);
+        db.execSQL(CREATE_LOCATION_TABLE);
     }
 
     @Override
@@ -137,7 +151,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public static String getSessionTableName() {
-        return "Session_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis()) ;
+        return "Session_";
     }
 
     public static String getPeriodTableName() {
@@ -308,37 +322,37 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //更新应用使用时区
     public void updatePeriod (SQLiteDatabase db, String packName) {
-        try {
-            if (!tabIsExist(getPeriodTableName())) {
-                db.execSQL(CREATE_PERIOD_TABLE);
-            }
-            Cursor cursor = db.query(getPeriodTableName(),
-                    null,
-                    TableIndex.App.APP_PACKAGE + " = ?" ,
-                    new String[] {packName}, null, null, null);
-            ContentValues cv = new ContentValues();
-            if (cursor == null) {
-                cv.put(TableIndex.Period.APP_PACKAGE, packName);
-                cv.put(DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())], 1);
-                db.insert(getPeriodTableName(), null, cv);
-            } else {
-                if (cursor.getCount() == 0) {
-                    cv.put(TableIndex.Period.APP_PACKAGE, packName);
-                    cv.put(DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())], 1);
-                    db.insert(getPeriodTableName(), null, cv);
-                } else {
-                    cursor.moveToFirst();
-                    int count = cursor.getInt(cursor.getColumnIndex(DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())]));
-                    count++;
-                    cv.put(DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())], count);
-                    db.update(getPeriodTableName(), cv, TableIndex.Period.APP_PACKAGE + " = ?", new String[]{packName});
-                }
-            }
-        } catch (android.database.SQLException ex) {
-            ex.printStackTrace();
-        } finally {
-            db.close();
-        }
+//        try {
+//            if (!tabIsExist(getPeriodTableName())) {
+//                db.execSQL(CREATE_PERIOD_TABLE);
+//            }
+//            Cursor cursor = db.query(getPeriodTableName(),
+//                    null,
+//                    TableIndex.App.APP_PACKAGE + " = ?" ,
+//                    new String[] {packName}, null, null, null);
+//            ContentValues cv = new ContentValues();
+//            if (cursor == null) {
+//                cv.put(TableIndex.Period.APP_PACKAGE, packName);
+//                cv.put(DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())], 1);
+//                db.insert(getPeriodTableName(), null, cv);
+//            } else {
+//                if (cursor.getCount() == 0) {
+//                    cv.put(TableIndex.Period.APP_PACKAGE, packName);
+//                    cv.put(DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())], 1);
+//                    db.insert(getPeriodTableName(), null, cv);
+//                } else {
+//                    cursor.moveToFirst();
+//                    int count = cursor.getInt(cursor.getColumnIndex(DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())]));
+//                    count++;
+//                    cv.put(DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())], count);
+//                    db.update(getPeriodTableName(), cv, TableIndex.Period.APP_PACKAGE + " = ?", new String[]{packName});
+//                }
+//            }
+//        } catch (android.database.SQLException ex) {
+//            ex.printStackTrace();
+//        } finally {
+//            db.close();
+//        }
     }
 
     //插入到session表
@@ -350,15 +364,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 db.execSQL(CREATE_SESSION_TABLE);
             }
             ContentValues cv = new ContentValues();
-            cv.put(TableIndex.Session.APP_PACKAGE, packName);
+            cv.put(TableIndex.Session.NOW_APP, packName);
             cv.put(TableIndex.Session.LOCATION, location);
             cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())]);
             cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
             db.insert(getSessionTableName(), null, cv);
-//            Cursor cr = db.query(getSessionTableName(), null, null, null, null, null, null);
-//            while (cr.moveToNext()) {
-//                System.out.println("" + cr.getString(0));
-//            }
+            Cursor cr = db.query(getSessionTableName(), null, null, null, null, null, null);
+            //update last id NextApp
+            while (cr != null && cr.getCount() > 1) {
+                cr.moveToLast();
+                int id = cr.getInt(cr.getColumnIndex(TableIndex.Session.ID));
+                id--;
+                cv = new ContentValues();
+                cv.put(TableIndex.Session.NEXT_APP, packName);
+                getWritableDatabase().update(getSessionTableName(), cv,
+                        " " + TableIndex.Session.ID + " = ? ", new String[] {String.valueOf(id)});
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
@@ -414,15 +435,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      */
     public HashMap<String, Integer> getLastDayApp() {
         HashMap<String, Integer> dbData = new HashMap<String, Integer>();
-        String lastDay = "Session_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis() - DateUtil.ONE_DAY);
-        if (!tabIsExist(lastDay)) {
-            lastDay = "Session_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis());
-        }
-//        String lastDay = "Session_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis());
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.query(getSessionTableName(),
+                new String[] {TableIndex.Session.NEXT_APP},
+//                " " + TableIndex.Session.NOW_APP + " = ?", new String[] {appName},
+                null, null,
+                null, null, TableIndex.Session.ID + " desc", "100");
 
-        Cursor c = this.getReadableDatabase().query(lastDay,
-                new String[] {TableIndex.Session.APP_PACKAGE},
-                null, null, null, null, null);
         dbData.clear();
         if (c != null && c.getCount() > 0) {
             dbData.put("all", c.getCount());
@@ -440,7 +459,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 }
             }
         }
-
+        db.close();
         return dbData;
     }
 
@@ -450,17 +469,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      */
     public HashMap<String, Integer> getLastDayPeriodApp() {
         HashMap<String, Integer> dbData = new HashMap<String, Integer>();
-        String lastDay = "Session_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis() - DateUtil.ONE_DAY);
-        if (!tabIsExist(lastDay)) {
-            lastDay = "Session_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis());
-        }
-//        String lastDay = "Session_" + DateUtil.formatDateWithoutHour(System.currentTimeMillis());
 
-        Cursor c = this.getReadableDatabase().query(lastDay,
-                new String[] {TableIndex.Session.APP_PACKAGE},
+//        Cursor c = this.getReadableDatabase().query(getSessionTableName(),
+//                new String[] {TableIndex.Session.NEXT_APP},
+//                " " + TableIndex.Session.TIME_PERIOD + " = ? ",
+//                new String[] {DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())]},
+//                null, null, null);
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.query(getSessionTableName(),
+                new String[]{TableIndex.Session.NEXT_APP},
                 " " + TableIndex.Session.TIME_PERIOD + " = ? ",
-                new String[] {DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())]},
-                null, null, null);
+                new String[]{DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())]},
+                null, null, TableIndex.Session.ID, "100");
+
         dbData.clear();
         if (c != null && c.getCount() > 0) {
             dbData.put("all", c.getCount());
@@ -478,16 +499,81 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 }
             }
         }
+        db.close();
         return dbData;
     }
 
+    /**
+     * 获取当前app的下一个app
+     * */
+    public HashMap<String, Integer> getNextApp(String appName) {
+        HashMap<String, Integer> dbData = new HashMap<String, Integer>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = this.getReadableDatabase().query(getSessionTableName(),
+                new String[]{TableIndex.Session.NEXT_APP},
+                " " + TableIndex.Session.NOW_APP + " = ?", new String[]{appName},
+                null, null, TableIndex.Session.ID + " desc", "100");
+
+        dbData.clear();
+        if (c != null && c.getCount() > 0) {
+            dbData.put("all", c.getCount());
+            while (c.moveToNext()) {
+                String packName = c.getString(0);
+                if (packName != null && packName.equals("screenon")) {
+                    continue;
+                }
+                if (dbData.containsKey(packName)) {
+                    int count = dbData.get(packName);
+                    count++;
+                    dbData.put(packName, count);
+                } else {
+                    dbData.put(packName, 1);
+                }
+            }
+        }
+        db.close();
+        return dbData;
+    }
+
+    /**
+     * 获取当前app该时间段的的下一个app
+     * */
+    public HashMap<String, Integer> getNextAppThisPerion(String appName) {
+        HashMap<String, Integer> dbData = new HashMap<String, Integer>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.query(getSessionTableName(),
+                new String[]{TableIndex.Session.NEXT_APP},
+                " " + TableIndex.Session.NOW_APP + " = ? and " + TableIndex.Session.TIME_PERIOD + " = ?"
+                , new String[]{appName, DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())]},
+                null, null, TableIndex.Session.ID + " desc", "100");
+
+        dbData.clear();
+        if (c != null && c.getCount() > 0) {
+            dbData.put("all", c.getCount());
+            while (c.moveToNext()) {
+                String packName = c.getString(0);
+                if (packName != null && packName.equals("screenon")) {
+                    continue;
+                }
+                if (dbData.containsKey(packName)) {
+                    int count = dbData.get(packName);
+                    count++;
+                    dbData.put(packName, count);
+                } else {
+                    dbData.put(packName, 1);
+                }
+            }
+        }
+        db.close();
+        return dbData;
+    }
     /**
      * 获取亲密度比例
      */
     public int getIntimate(String appName) {
         int temp = 0;
-
-        Cursor c = this.getReadableDatabase().query(TableIndex.Intimate.TABLE_NAME,
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.query(TableIndex.Intimate.TABLE_NAME,
                 new String[] {TableIndex.Intimate.INTIMACY, TableIndex.Intimate.RECEIVE_COUNT},
                 " " + TableIndex.Intimate.APP_PACKAGE + " = ? ",
                 new String[] {appName},
@@ -500,6 +586,87 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 temp = intimate * 100 / receviceCount;
             }
         }
+        db.close();
         return temp;
+    }
+
+    public void insertToLocation(String address, String addressType) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        try {
+            ContentValues cv = new ContentValues();
+            cv.put(TableIndex.Location.ADDRESS, address);
+            cv.put(TableIndex.Location.ADDRESS_TYPE, addressType);
+            db.insert(TableIndex.Location.TABLE_NAME, null, cv);
+        } catch (android.database.SQLException ex) {
+            ex.printStackTrace();
+        } finally {
+            db.close();
+        }
+    }
+
+    public String queryLocationType(String address) {
+        if (address == null) {
+            return null;
+        }
+        SQLiteDatabase db = this.getReadableDatabase();
+        try {
+            Cursor c = db.query(TableIndex.Location.TABLE_NAME,
+                    null, " " + TableIndex.Location.ADDRESS + " = ?",
+                    new String[]{address}
+                    , null, null, null);
+            if (c != null && c.getCount() > 0) {
+                c.moveToLast();
+                return c.getString(c.getColumnIndex(TableIndex.Location.ADDRESS_TYPE));
+            } else {
+                return null;
+            }
+        } catch (android.database.SQLException ex) {
+            ex.printStackTrace();
+        } finally {
+            db.close();
+        }
+        return null;
+    }
+
+    /**
+     * 获取当前app的下一个app
+     * */
+    public ArrayList<DataBean> getNextAppNew(String appName) {
+        ArrayList<DataBean> dbData = new ArrayList<DataBean>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = this.getReadableDatabase().query(getSessionTableName(),
+//                new String[] {TableIndex.Session.NEXT_APP}
+                null,
+                " " + TableIndex.Session.NOW_APP + " = ?", new String[] {appName},
+                null, null, TableIndex.Session.ID + " desc", "100");
+
+        dbData.clear();
+        if (c != null && c.getCount() > 0) {
+            while (c.moveToNext()) {
+                String packName = c.getString(c.getColumnIndex(TableIndex.Session.NEXT_APP));
+                if (packName == null || packName.equals("screenon")) {
+                    continue;
+                }
+                if (packName.equals("")) {
+                    continue;
+                }
+//                if (dbData.containsKey(packName)) {
+//                    DataBean s = dbData.get(packName);
+//                    int count = s.getCount();
+//                    count++;
+//                    s.setCount(count);
+//                    dbData.put(packName,s);
+//                } else {
+                    DataBean a
+                            = new DataBean(c.getString(c.getColumnIndex(TableIndex.Session.TIME_PERIOD)),
+                                                          c.getString(c.getColumnIndex(TableIndex.Session.LOCATION)),
+                                                          c.getString(c.getColumnIndex(TableIndex.Session.NEXT_APP)),
+                                                          1);
+                    dbData.add(a);
+//                }
+            }
+        }
+        db.close();
+        return dbData;
     }
 }

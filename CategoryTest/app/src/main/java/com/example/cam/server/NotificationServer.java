@@ -71,6 +71,7 @@ public class NotificationServer extends NotificationListenerService {
                                 mLocClient.stop();
                             }
                             mLocClient.start();
+                            PredictUtil.getmInstance(MyApplication.getAppInstance()).getSomeDataFromPackName(runningActivity);
                         }
                         Thread.sleep(5000);
                     } catch (InterruptedException ex) {
@@ -79,7 +80,7 @@ public class NotificationServer extends NotificationListenerService {
                 }
             }
         }).start();
-        predictUtil = PredictUtil.getmInstance((MyApplication)getApplication());
+//        predictUtil = PredictUtil.getmInstance((MyApplication)getApplication());
     }
 
     //通知栏收到通知
@@ -110,7 +111,7 @@ public class NotificationServer extends NotificationListenerService {
             }
         }
 
-        super.onNotificationPosted(sbn);
+//        super.onNotificationPosted(sbn);
     }
 
     //通知栏移除通知
@@ -133,7 +134,7 @@ public class NotificationServer extends NotificationListenerService {
                 }
             }
         }
-        super.onNotificationRemoved(sbn);
+//        super.onNotificationRemoved(sbn);
     }
 
     @Override
@@ -167,7 +168,7 @@ public class NotificationServer extends NotificationListenerService {
                         && !lastApp.equalsIgnoreCase(getApplicationContext().getPackageName())
                         && !closeApp.equalsIgnoreCase(getApplicationContext().getPackageName())) {
 //                    ActivityUtil.launcherPredictApp(context, mHandler, predictUtil.predictNextApp(), closeApp);
-                    System.out.println("predict NextApp is -> " + predictUtil.predictNextApp());
+//                    System.out.println("predict NextApp is -> " + predictUtil.predictNextApp());
                 }
             } else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
                 Log.i(LOG_TAG, "screen off");

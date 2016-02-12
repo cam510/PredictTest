@@ -18,6 +18,8 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"></uses-permission>
 
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
     <application
         android:name="com.example.cam.MyApplication"
         android:allowBackup="true"
@@ -33,6 +35,13 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity android:name=".LocationTypeActivity"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Translucent"
+            >
+
         </activity>
         <service android:name="com.example.cam.server.AppCategroyServer"/>
         <service android:name="com.example.cam.server.LocationServer"/>

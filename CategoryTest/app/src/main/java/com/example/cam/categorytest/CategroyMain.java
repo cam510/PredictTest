@@ -1,5 +1,6 @@
 package com.example.cam.categorytest;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -60,6 +61,8 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
 
     private AlertDialog initDialog;
 
+//    private static Activity mDialogActivity ;
+
     private AsyncHttpClient asyncHttpClient = new AsyncHttpClient() {
 
         @Override
@@ -96,6 +99,8 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
         };
 
         showProcessDialog();
+
+//        mDialogActivity = this;
 
         runDB();
 

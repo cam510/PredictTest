@@ -14,10 +14,13 @@ public class TableIndex {
     }
 
     public static class Session {
-        public final static String APP_PACKAGE = "AppPackage";
+//        public final static String APP_PACKAGE = "AppPackage";
         public final static String LOCATION = "Location";
         public final static String OPEN_TIME = "OpenTime";
         public final static String TIME_PERIOD = "TimePeriod";
+        public final static String ID = "id";
+        public final static String NOW_APP = "NowName";
+        public final static String NEXT_APP = "NextName";
 //        public final static String TODAY_USE_TIME = "TodayUseTime";
 //        public final static String TODAY_APP_POWER = "TodayAppPower";
     }
@@ -65,4 +68,13 @@ public class TableIndex {
         public final static String _22_23 = "_22_23";
         public final static String _23_24 = "_23_24";
     }
+
+    public static class Location{
+        public final static String TABLE_NAME = "LocationTable";
+        public final static String ADDRESS = "Address";
+        public final static String ADDRESS_TYPE = "Address_Type";
+    }
+
+    public static String[] S_ADDRESS_TYPE = new String[] {"HOME", "COMPANY", "SCHOOL",
+            "ON_WAY_TO_WORK", "ELSE"};
 }
