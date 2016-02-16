@@ -10,35 +10,35 @@
         <RadioButton
             android:id="@+id/home_btn"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:text="HOME"
-            />
+            android:checked="false" />
 
         <RadioButton
             android:id="@+id/company_btn"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:text="COMPANY"
             />
 
         <RadioButton
             android:id="@+id/school_btn"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:text="SCHOOL"
             />
 
         <RadioButton
             android:id="@+id/on_way_to_work_btn"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:text="ON_WAY_TO_WORK"
             />
 
         <RadioButton
             android:id="@+id/else_btn"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:text="ELSE"
             />
     </RadioGroup>

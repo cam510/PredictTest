@@ -41,6 +41,7 @@ public class NotificationServer extends NotificationListenerService {
     private HashMap<String, ReceviceObject> myReceiveNotification = new HashMap<String, ReceviceObject>();
     private Handler mHandler = new Handler();
     private PredictUtil predictUtil;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -55,24 +56,25 @@ public class NotificationServer extends NotificationListenerService {
             public void run() {
                 while (isStart) {
                     try {
-                        String runningActivity = getRunningAppPackName();
-                        System.out.println("runningActivity -> " + runningActivity);
+                        final String runningActivity = getRunningAppPackName();
                         if (!lastApp.equals(runningActivity)
                                 && isScreenOn
                                 && !runningActivity.contains("LAUNCHER")
                                 && !runningActivity.contains("launcher")
                                 && !runningActivity.contains("homescreen")
                                 && !runningActivity.contains("systemui")) {
+                            System.out.println("runningActivity -> " + runningActivity);
                             lastApp = runningActivity;
                             MyApplication.getmDbHelper().updateAppLauncher(MyApplication.getmDbHelper().getWritableDatabase(), lastApp);
                             MyApplication.getmDbHelper().updatePeriod(MyApplication.getmDbHelper().getWritableDatabase(), lastApp);
                             MyApplication.myListener.setCurPackName(lastApp);
-                            setLocationOption();
-                            if (mLocClient.isStarted()) {
-                                mLocClient.stop();
-                            }
-                            mLocClient.start();
                             PredictUtil.getmInstance(MyApplication.getAppInstance()).getSomeDataFromPackName(runningActivity);
+                            setLocationOption();
+                            mLocClient.start();
+//                            if (mLocClient.isStarted()) {
+//                                mLocClient.stop();
+//                            }
+
                         }
                         Thread.sleep(5000);
                     } catch (InterruptedException ex) {
@@ -209,7 +211,7 @@ public class NotificationServer extends NotificationListenerService {
     //设置相关参数
     private void setLocationOption(){
         LocationClientOption option = new LocationClientOption();
-        option.setOpenGps(false);				//打开gps
+        option.setOpenGps(true);				//打开gps
         option.setAddrType("all");		//设置地址信息，仅设置为“all”时有地址信息，默认无地址信息
         option.setScanSpan(0);	//设置定位模式，小于1秒则一次定位;大于等于1秒则定时定位
         mLocClient.setLocOption(option);
@@ -220,5 +222,10 @@ public class NotificationServer extends NotificationListenerService {
         i.putExtra("location", locationStr);
         i.putExtra("appname", curPackName);
         MyApplication.getAppInstance().startActivity(i);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return super.onStartCommand(intent, START_STICKY, startId);
     }
 }

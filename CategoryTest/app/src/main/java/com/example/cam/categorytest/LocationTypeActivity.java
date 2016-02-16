@@ -4,14 +4,19 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.ToggleButton;
 
 import com.example.cam.DB.TableIndex;
 import com.example.cam.MyApplication;
 import com.example.cam.predict.PredictUtil;
+
 
 /**
  * Created by cam on 2/6/16.
@@ -24,6 +29,11 @@ public class LocationTypeActivity extends Activity {
     private String location = "";
     private String curApp = "";
 
+    private RadioGroup group;
+    private RadioButton rHome, rSchool, rCompany, rOnWay, rElse;
+
+    private Handler mHandler = new Handler();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,7 +43,44 @@ public class LocationTypeActivity extends Activity {
         location = getIntent().getStringExtra("location");
         curApp = getIntent().getStringExtra("appname");
 //        showDialog();
+
+        group = (RadioGroup) findViewById(R.id.locationgroup);
+        rHome = (RadioButton) findViewById(R.id.home_btn);
+        rSchool = (RadioButton) findViewById(R.id.school_btn);
+        rCompany = (RadioButton) findViewById(R.id.company_btn);
+        rOnWay = (RadioButton) findViewById(R.id.on_way_to_work_btn);
+        rElse = (RadioButton) findViewById(R.id.else_btn);
+
+        group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if (checkedId == rHome.getId()) {
+                    MyApplication.setLocationType(rHome.getText().toString());
+                } else if (checkedId == rSchool.getId()) {
+                    MyApplication.setLocationType(rSchool.getText().toString());
+                } else if (checkedId == rCompany.getId()) {
+                    MyApplication.setLocationType(rCompany.getText().toString());
+                } else if (checkedId == rOnWay.getId()) {
+                    MyApplication.setLocationType(rOnWay.getText().toString());
+                } else if (checkedId == rElse.getId()) {
+                    MyApplication.setLocationType(rElse.getText().toString());
+                }
+                MyApplication.getmDbHelper().insertSession(curApp, MyApplication.getLocationType());
+                MyApplication.getmDbHelper().insertToLocation(location, type);
+                MyApplication.getAppInstance().setIsDialogShow(false);
+                PredictUtil.getmInstance(MyApplication.getAppInstance()).getSomeDataFromPackName(curApp);
+
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        finish();
+                    }
+                }, 2000);
+            }
+        });
+
     }
+
     private void showDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(LocationTypeActivity.this)
                 .setTitle("select location type")
@@ -66,14 +113,14 @@ public class LocationTypeActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        if(mDialog !=null && mDialog.isShowing()) {
+        if (mDialog != null && mDialog.isShowing()) {
             mDialog.dismiss();
         }
         super.onDestroy();
     }
 
     private void end() {
-        if(mDialog !=null && mDialog.isShowing()) {
+        if (mDialog != null && mDialog.isShowing()) {
             mDialog.dismiss();
         }
 //        Intent i = new Intent(this, CategroyMain.class);

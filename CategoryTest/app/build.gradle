@@ -25,4 +25,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile files('libs/httpclient-4.3.6.jar')
     compile files('libs/locSDK_5.2.jar')
+    compile 'com.google.android.gms:play-services-appindexing:8.1.0'
 }

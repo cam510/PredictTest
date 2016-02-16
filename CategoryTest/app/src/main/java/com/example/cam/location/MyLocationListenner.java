@@ -73,20 +73,24 @@ public class MyLocationListenner implements BDLocationListener {
         String getLocation = MyApplication.getmDbHelper().queryLocationType(locationStr);
         if (getLocation == null
                 || getLocation.equals("")) {
-            if (!MyApplication.getAppInstance().isDialogShow()) {
-                MyApplication.getAppInstance().setIsDialogShow(true);
-                Intent i = new Intent(MyApplication.getAppInstance(), LocationTypeActivity.class);
-                i.putExtra("location", locationStr);
-                i.putExtra("appname", curPackName);
-                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                MyApplication.getAppInstance().startActivity(i);
-//                NotificationServer.startLocationType(locationStr, curPackName);
-            }
+//            if (!MyApplication.getAppInstance().isDialogShow()) {
+//                MyApplication.getAppInstance().setIsDialogShow(true);
+//                Intent i = new Intent(MyApplication.getAppInstance(), LocationTypeActivity.class);
+//                i.putExtra("location", locationStr);
+//                i.putExtra("appname", curPackName);
+//                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                MyApplication.getAppInstance().startActivity(i);
+//            } else {
+//                MyApplication.getmDbHelper().insertSession(curPackName, MyApplication.getLocationType());
+//            }
+            MyApplication.getmDbHelper().insertSession(curPackName, MyApplication.getLocationType());
+            System.out.println("enter if insertsession");
         } else {
+            System.out.println("enter else insertsession");
             MyApplication.getmDbHelper().insertSession(curPackName, MyApplication.getLocationType());
 //            PredictUtil.getmInstance(MyApplication.getAppInstance()).getSomeDataFromPackName(curPackName);
         }
-        mLocationClient.stop();
+//        mLocationClient.stop();
 
     }
 

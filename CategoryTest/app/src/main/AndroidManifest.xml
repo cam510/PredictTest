@@ -39,7 +39,7 @@
 
         <activity android:name=".LocationTypeActivity"
             android:launchMode="standard"
-            android:theme="@android:style/Theme.Translucent"
+            android:theme="@android:style/Theme.Dialog"
             >
         <!-- android:theme="@android:style/Theme.Translucent" -->
         </activity>
@@ -56,8 +56,9 @@
 
         <service android:name="com.example.cam.server.NotificationServer"
             android:label="NotificationServer"
+
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
-            <intent-filter>
+            <intent-filter android:priority="1000">
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
@@ -68,6 +69,11 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+        <!-- ATTENTION: This was auto-generated to add Google Play services to your project for
+             App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
     </application>
 
 
