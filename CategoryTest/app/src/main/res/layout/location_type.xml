@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RadioGroup
+        android:id="@+id/locationgroup"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <RadioButton
+            android:id="@+id/home_btn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="HOME"
+            />
+
+        <RadioButton
+            android:id="@+id/company_btn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="COMPANY"
+            />
+
+        <RadioButton
+            android:id="@+id/school_btn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="SCHOOL"
+            />
+
+        <RadioButton
+            android:id="@+id/on_way_to_work_btn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="ON_WAY_TO_WORK"
+            />
+
+        <RadioButton
+            android:id="@+id/else_btn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="ELSE"
+            />
+    </RadioGroup>
+</LinearLayout>

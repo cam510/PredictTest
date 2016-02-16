@@ -15,6 +15,7 @@ import android.util.Log;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.example.cam.MyApplication;
+import com.example.cam.categorytest.LocationTypeActivity;
 import com.example.cam.commonUtils.ActivityUtil;
 import com.example.cam.predict.PredictUtil;
 
@@ -212,5 +213,12 @@ public class NotificationServer extends NotificationListenerService {
         option.setAddrType("all");		//设置地址信息，仅设置为“all”时有地址信息，默认无地址信息
         option.setScanSpan(0);	//设置定位模式，小于1秒则一次定位;大于等于1秒则定时定位
         mLocClient.setLocOption(option);
+    }
+
+    public static void startLocationType(String locationStr, String curPackName) {
+        Intent i = new Intent(MyApplication.getAppInstance(), LocationTypeActivity.class);
+        i.putExtra("location", locationStr);
+        i.putExtra("appname", curPackName);
+        MyApplication.getAppInstance().startActivity(i);
     }
 }

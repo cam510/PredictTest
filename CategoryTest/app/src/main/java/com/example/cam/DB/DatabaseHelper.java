@@ -162,7 +162,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void createSession(SQLiteDatabase db) {
         db.execSQL(CREATE_SESSION_TABLE);
-        db.close();
+//        db.close();
     }
 
     //插入应用到app表
@@ -187,7 +187,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
-            db.close();
+//            db.close();
         }
     }
 
@@ -208,7 +208,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
-            db.close();
+//            db.close();
         }
         return 0;
     }
@@ -219,7 +219,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } catch (android.database.SQLException ex) {
             ex.printStackTrace();
         } finally {
-            db.close();
+//            db.close();
         }
     }
 
@@ -244,7 +244,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } catch (Exception ex){
             ex.printStackTrace();
         } finally {
-            db.close();
+//            db.close();
         }
         System.out.println("null size -> " + nullCategroyList.size());
         return nullCategroyList;
@@ -266,7 +266,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } catch (android.database.SQLException ex) {
             ex.printStackTrace();
         } finally {
-            db.close();
+//            db.close();
         }
     }
 
@@ -300,7 +300,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } catch (android.database.SQLException ex) {
             ex.printStackTrace();
         } finally {
-            db.close();
+//            db.close();
         }
     }
 
@@ -316,7 +316,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
-            db.close();
+//            db.close();
         }
     }
 
@@ -358,7 +358,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     //插入到session表
     public void insertSession( String packName, String location) {
         SQLiteDatabase db = this.getWritableDatabase();
-        System.out.println("enter insertSession " + db.getPath());
+        System.out.println("enter insertSession " + packName);
         try {
             if (!tabIsExist(getSessionTableName())) {
                 db.execSQL(CREATE_SESSION_TABLE);
@@ -383,7 +383,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
-            db.close();
+//            db.close();
         }
     }
 
@@ -425,7 +425,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } catch (android.database.SQLException ex) {
             ex.printStackTrace();
         } finally {
-            db.close();
+//            db.close();
         }
     }
 
@@ -459,7 +459,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 }
             }
         }
-        db.close();
+//        db.close();
         return dbData;
     }
 
@@ -499,7 +499,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 }
             }
         }
-        db.close();
+//        db.close();
         return dbData;
     }
 
@@ -531,7 +531,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 }
             }
         }
-        db.close();
+//        db.close();
         return dbData;
     }
 
@@ -564,7 +564,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 }
             }
         }
-        db.close();
+//        db.close();
         return dbData;
     }
     /**
@@ -586,7 +586,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 temp = intimate * 100 / receviceCount;
             }
         }
-        db.close();
+//        db.close();
         return temp;
     }
 
@@ -600,7 +600,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } catch (android.database.SQLException ex) {
             ex.printStackTrace();
         } finally {
-            db.close();
+//            db.close();
         }
     }
 
@@ -623,7 +623,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } catch (android.database.SQLException ex) {
             ex.printStackTrace();
         } finally {
-            db.close();
+//            db.close();
         }
         return null;
     }
@@ -666,7 +666,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 //                }
             }
         }
-        db.close();
+//        db.close();
         return dbData;
     }
 }

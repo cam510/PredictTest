@@ -3,8 +3,11 @@ package com.example.cam.categorytest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Window;
+import android.view.WindowManager;
+import android.widget.ToggleButton;
 
 import com.example.cam.DB.TableIndex;
 import com.example.cam.MyApplication;
@@ -23,14 +26,14 @@ public class LocationTypeActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        System.out.println("enter location type activity");
         super.onCreate(savedInstanceState);
+        System.out.println("enter location type activity");
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.location_type);
         location = getIntent().getStringExtra("location");
         curApp = getIntent().getStringExtra("appname");
-        showDialog();
+//        showDialog();
     }
-
     private void showDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(LocationTypeActivity.this)
                 .setTitle("select location type")
@@ -45,12 +48,19 @@ public class LocationTypeActivity extends Activity {
                         MyApplication.getmDbHelper().insertToLocation(location, type);
                         MyApplication.getAppInstance().setIsDialogShow(false);
                         PredictUtil.getmInstance(MyApplication.getAppInstance()).getSomeDataFromPackName(curApp);
-                        finish();
+//                        end();
                     }
                 });
         mDialog = builder.create();
-        mDialog.setCancelable(false);
+        mDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+        mDialog.setCancelable(true);
         mDialog.setCanceledOnTouchOutside(false);
+        mDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                end();
+            }
+        });
         mDialog.show();
     }
 
@@ -60,6 +70,14 @@ public class LocationTypeActivity extends Activity {
             mDialog.dismiss();
         }
         super.onDestroy();
+    }
+
+    private void end() {
+        if(mDialog !=null && mDialog.isShowing()) {
+            mDialog.dismiss();
+        }
+//        Intent i = new Intent(this, CategroyMain.class);
+        finish();
     }
 
 }

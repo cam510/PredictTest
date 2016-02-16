@@ -38,10 +38,10 @@
         </activity>
 
         <activity android:name=".LocationTypeActivity"
-            android:launchMode="singleInstance"
+            android:launchMode="standard"
             android:theme="@android:style/Theme.Translucent"
             >
-
+        <!-- android:theme="@android:style/Theme.Translucent" -->
         </activity>
         <service android:name="com.example.cam.server.AppCategroyServer"/>
         <service android:name="com.example.cam.server.LocationServer"/>

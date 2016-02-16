@@ -1,6 +1,10 @@
 package com.example.cam.predict;
 
 import android.content.Context;
+import android.os.Build;
+import android.support.annotation.NonNull;
+import android.util.ArrayMap;
+import android.util.LruCache;
 
 import com.example.cam.DB.DatabaseHelper;
 import com.example.cam.DB.TableIndex;
@@ -8,9 +12,11 @@ import com.example.cam.MyApplication;
 import com.example.cam.commonUtils.DateUtil;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 /**
@@ -26,9 +32,9 @@ public class PredictUtil {
 
     private HashMap<String, PredictBean> mData;
 
-    WeakHashMap<String, Integer> curLocationMap = new WeakHashMap<String, Integer>();
-    WeakHashMap<String, Integer> curTimeMap = new WeakHashMap<String, Integer>();
-    WeakHashMap<String, PredictBean> allData = new WeakHashMap<String, PredictBean>();
+    LruCache<String, Integer> curLocationMap = new LruCache<>(1024/8);
+    LruCache<String, Integer> curTimeMap = new LruCache<String, Integer>(1024/8);
+    LruCache<String, PredictBean> allData = new LruCache<String, PredictBean>(1024/2);
 
     private PredictBean allMax;
 
@@ -152,17 +158,19 @@ public class PredictUtil {
 
         PredictBean max = new PredictBean("", 0, 0);
 
-
+        ArrayList<String> appName = new ArrayList<String>();
         if (curTimeMap == null) {
-            curTimeMap = new WeakHashMap<String, Integer>();
+            curTimeMap = new LruCache<String, Integer>(1024/8);
         }
         if (curLocationMap == null) {
-            curLocationMap = new WeakHashMap<String, Integer>();
+            curLocationMap = new LruCache<String, Integer>(1024/8);
         }
 
-        allData.clear();
-        curLocationMap.clear();
-        curTimeMap.clear();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            allData.resize(1024);
+            curLocationMap.resize(1024);
+            curTimeMap.resize(1024);
+        }
 
         int allDataSize = nextAppData.size();
         if (allDataSize == 0) {
@@ -175,7 +183,7 @@ public class PredictUtil {
         for (DataBean d : nextAppData) {
             if (curTime.equals(d.getTimePeriod())) {
                 curTimeCount++;
-                if (curTimeMap.containsKey(d.getAppName())) {
+                if (curTimeMap.get(d.getAppName()) != null) {
                     int count = curTimeMap.get(d.getAppName());
                     count++;
                     curTimeMap.put(new String(d.getAppName()), count); //new String () advoice OOM
@@ -185,7 +193,7 @@ public class PredictUtil {
             }
             if (MyApplication.getLocationType().equals(d.getLocationType())) {
                 curLocationCount++;
-                if (curLocationMap.containsKey(new String(d.getAppName()))) {
+                if (curLocationMap.get(new String(d.getAppName())) != null) {
                     int count = curLocationMap.get(new String(d.getAppName()));
                     count++;
                     curLocationMap.put(new String(d.getAppName()), count);
@@ -193,7 +201,7 @@ public class PredictUtil {
                     curLocationMap.put(new String(d.getAppName()), 1);
                 }
             }
-            if (allData.containsKey(d.getAppName())) {
+            if (allData.get(d.getAppName()) != null) {
                 PredictBean p = allData.get(d.getAppName());
                 int lanucherCount = p.getLanucherCount()+1;
                 p.setLanucherCount(lanucherCount);
@@ -203,23 +211,61 @@ public class PredictUtil {
                 PredictBean p = new PredictBean(d.getAppName(), 1, 0);
                 allData.put(d.getAppName(), p);
             }
+
+            if (!appName.contains(d.getAppName())) {
+                appName.add(d.getAppName());
+            }
         }
 
-        Iterator iter = allData.entrySet().iterator();
-        while(iter.hasNext()) {
-            Map.Entry entry = (Map.Entry) iter.next();
-            PredictBean p = (PredictBean) entry.getValue();
-            String appName = p.getPackName();
-            int p_time = curTimeMap.get(appName) * 100 / curTimeCount; //当前时间app的概率
-            int p_location = curLocationMap.get(appName) * 100 /curLocationCount; //当前位置app的概率
+//        Iterator iter = allData.entrySet().iterator();
+//        while(iter.hasNext()) {
+//            Map.Entry entry = (Map.Entry) iter.next();
+//            PredictBean p = (PredictBean) entry.getValue();
+//            String appName = p.getPackName();
+//            int p_time = curTimeMap.get(appName) * 100 / curTimeCount; //当前时间app的概率
+//            int p_location = curLocationMap.get(appName) * 100 /curLocationCount; //当前位置app的概率
+//            int curProbability = p.getProbability();
+//            if (p_time * p_location * curProbability > max.getProbability()) {
+//                max.setProbability(p_time * p_location * curProbability);
+//                max.setPackName(appName);
+//            }
+//        }
+        for (String s : appName) {
+            PredictBean p = (PredictBean) allData.get(s);
+            String name = p.getPackName();
+            if (curLocationMap == null || curTimeMap == null) {
+                return;
+            }
+            int p_time = 1; //当前时间app的概率
+            if (curTimeMap.get(name) != null && curTimeCount > 0) {
+                p_time = curTimeMap.get(s) * 100 / curTimeCount;
+            }
+            int p_location = 1; //当前位置app的概率
+            if (curLocationMap.get(name) != null && curLocationCount > 0) {
+                p_location = curLocationMap.get(s) * 100 /curLocationCount;
+            }
             int curProbability = p.getProbability();
             if (p_time * p_location * curProbability > max.getProbability()) {
                 max.setProbability(p_time * p_location * curProbability);
-                max.setPackName(appName);
+                max.setPackName(s);
             }
         }
         System.out.println("may be the next app " + max.getPackName());
         System.gc();
     }
 
+//    class MyMap implements Map {
+//
+//    }
+    class MyLruCache extends LruCache {
+
+        /**
+         * @param maxSize for caches that do not override {@link #sizeOf}, this is
+         *                the maximum number of entries in the cache. For all other caches,
+         *                this is the maximum sum of the sizes of the entries in this cache.
+         */
+        public MyLruCache(int maxSize) {
+            super(maxSize);
+        }
+    }
 }

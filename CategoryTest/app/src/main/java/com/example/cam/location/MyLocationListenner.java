@@ -9,6 +9,7 @@ import com.baidu.location.LocationClient;
 import com.example.cam.MyApplication;
 import com.example.cam.categorytest.LocationTypeActivity;
 import com.example.cam.predict.PredictUtil;
+import com.example.cam.server.NotificationServer;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -79,6 +80,7 @@ public class MyLocationListenner implements BDLocationListener {
                 i.putExtra("appname", curPackName);
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 MyApplication.getAppInstance().startActivity(i);
+//                NotificationServer.startLocationType(locationStr, curPackName);
             }
         } else {
             MyApplication.getmDbHelper().insertSession(curPackName, MyApplication.getLocationType());
