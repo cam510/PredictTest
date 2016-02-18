@@ -68,7 +68,8 @@ public class NotificationServer extends NotificationListenerService {
                             MyApplication.getmDbHelper().updateAppLauncher(MyApplication.getmDbHelper().getWritableDatabase(), lastApp);
                             MyApplication.getmDbHelper().updatePeriod(MyApplication.getmDbHelper().getWritableDatabase(), lastApp);
                             MyApplication.myListener.setCurPackName(lastApp);
-                            PredictUtil.getmInstance(MyApplication.getAppInstance()).getSomeDataFromPackName(runningActivity);
+//                            PredictUtil.getmInstance(MyApplication.getAppInstance()).getSomeDataFromPackName(runningActivity);
+                            PredictUtil.getmInstance(MyApplication.getAppInstance()).getSomeDataFromPackName("chrome");
                             setLocationOption();
 //                            if (mLocClient.isStarted()) {
 //                                mLocClient.stop();

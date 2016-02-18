@@ -19,6 +19,7 @@ import com.example.cam.server.ReceviceObject;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 /**
  * Created by cam on 1/7/16.
@@ -664,6 +665,48 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                                                           1);
                     dbData.add(a);
 //                }
+            }
+        }
+//        db.close();
+        return dbData;
+    }
+
+    /**
+     * 获取当前app的下一个app
+     * */
+    public ArrayList<DataBean> getNextAppNew70(String appName) {
+        ArrayList<DataBean> dbData = new ArrayList<DataBean>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Random r = new Random(24);
+        int time = r.nextInt();
+
+        Cursor c = this.getReadableDatabase().query(getSessionTableName(),
+//                new String[] {TableIndex.Session.NEXT_APP}
+                null,
+                " " + TableIndex.Session.NOW_APP + " = ? and "
+                        + TableIndex.Session.TIME_PERIOD + " != ? and "
+                        + TableIndex.Session.TIME_PERIOD + " != ? and "
+                        + TableIndex.Session.TIME_PERIOD + " != ?"
+                , new String[] {appName, ""+ (time%24) , "" + ((time+1)%24),  "" + ((time+2)%24)},
+                null, null, TableIndex.Session.ID + " desc", "100");
+
+        dbData.clear();
+        if (c != null && c.getCount() > 0) {
+            while (c.moveToNext()) {
+                String packName = c.getString(c.getColumnIndex(TableIndex.Session.NEXT_APP));
+                if (packName == null || packName.equals("screenon")) {
+                    continue;
+                }
+                if (packName.equals("")) {
+                    continue;
+                }
+                DataBean a
+                        = new DataBean(c.getString(c.getColumnIndex(TableIndex.Session.TIME_PERIOD)),
+                        c.getString(c.getColumnIndex(TableIndex.Session.LOCATION)),
+                        c.getString(c.getColumnIndex(TableIndex.Session.NEXT_APP)),
+                        1);
+                dbData.add(a);
             }
         }
 //        db.close();

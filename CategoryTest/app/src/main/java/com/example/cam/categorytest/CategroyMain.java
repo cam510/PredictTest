@@ -102,14 +102,14 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
             }
         };
 
-        showProcessDialog();
+//        showProcessDialog();
 
 //        mDialogActivity = this;
 
 //        runDB();
 
         insertVaritulData();
-
+        startService();
 //        startService(new Intent(this, NotificationServer.class));
 //        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
 //        startActivity(intent);

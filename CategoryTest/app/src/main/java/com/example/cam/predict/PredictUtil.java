@@ -153,8 +153,11 @@ public class PredictUtil {
     }
 
     public void getSomeDataFromPackName(String packName) {
-        ArrayList<DataBean> nextAppData = mDbHelper.getNextAppNew(packName);
+//        ArrayList<DataBean> nextAppData = mDbHelper.getNextAppNew(packName);
+        ArrayList<DataBean> nextAppData = mDbHelper.getNextAppNew70(packName);
         String curTime = DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())];
+        //测试数据
+//        String curTime = DateUtil.dataArray[12];
 
         PredictBean max = new PredictBean("", 0, 0);
 
@@ -191,6 +194,9 @@ public class PredictUtil {
                     curTimeMap.put(new String(d.getAppName()), 1);
                 }
             }
+            //获取当前位置
+            //测试数据
+//            if ("HOME".equals(d.getLocationType())) {
             if (MyApplication.getLocationType().equals(d.getLocationType())) {
                 curLocationCount++;
                 if (curLocationMap.get(new String(d.getAppName())) != null) {
