@@ -70,10 +70,10 @@ public class NotificationServer extends NotificationListenerService {
                             MyApplication.myListener.setCurPackName(lastApp);
                             PredictUtil.getmInstance(MyApplication.getAppInstance()).getSomeDataFromPackName(runningActivity);
                             setLocationOption();
-                            mLocClient.start();
 //                            if (mLocClient.isStarted()) {
 //                                mLocClient.stop();
 //                            }
+//                            mLocClient.start();
 
                         }
                         Thread.sleep(5000);

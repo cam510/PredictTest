@@ -3,9 +3,11 @@ package com.example.cam.categorytest;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -13,11 +15,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.cam.DB.TableIndex;
 import com.example.cam.MyApplication;
 import com.example.cam.categoryUtil.PackageUtil;
 import com.example.cam.categoryUtil.PackageVO;
 import com.example.cam.commonUtils.ActivityUtil;
 import com.example.cam.commonUtils.CategroyUtil;
+import com.example.cam.commonUtils.DateUtil;
 import com.example.cam.httpUtil.AsyncHttpClient;
 import com.example.cam.httpUtil.AsyncHttpRequest;
 import com.example.cam.httpUtil.BaseJsonHttpResponseHandler;
@@ -102,7 +106,9 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
 
 //        mDialogActivity = this;
 
-        runDB();
+//        runDB();
+
+        insertVaritulData();
 
 //        startService(new Intent(this, NotificationServer.class));
 //        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
@@ -355,4 +361,353 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
         initDialog.show();
     }
 
+    private void insertVaritulData() {
+        SQLiteDatabase db = MyApplication.getmDbHelper().getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "wether");
+        cv.put(TableIndex.Session.NEXT_APP, "zhihu");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[7]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "zhihu");
+        cv.put(TableIndex.Session.NEXT_APP, "taobao");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[7]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "taobao");
+        cv.put(TableIndex.Session.NEXT_APP, "taobao");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[7]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "taobao");
+        cv.put(TableIndex.Session.NEXT_APP, "chrome");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[7]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "chrome");
+        cv.put(TableIndex.Session.NEXT_APP, "mm");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[8]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "mm");
+        cv.put(TableIndex.Session.NEXT_APP, "chrome");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[8]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "mm");
+        cv.put(TableIndex.Session.NEXT_APP, "email");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[8]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "mm");
+        cv.put(TableIndex.Session.NEXT_APP, "chrome");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[8]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "chrome");
+        cv.put(TableIndex.Session.NEXT_APP, "email");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[8]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "email");
+        cv.put(TableIndex.Session.NEXT_APP, "mm");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[9]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "mm");
+        cv.put(TableIndex.Session.NEXT_APP, "phone");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[9]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "phone");
+        cv.put(TableIndex.Session.NEXT_APP, "sms");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[9]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "sms");
+        cv.put(TableIndex.Session.NEXT_APP, "email");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[9]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "email");
+        cv.put(TableIndex.Session.NEXT_APP, "meituan");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[9]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "meituan");
+        cv.put(TableIndex.Session.NEXT_APP, "mm");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[11]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "mm");
+        cv.put(TableIndex.Session.NEXT_APP, "meituan");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[11]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "meituan");
+        cv.put(TableIndex.Session.NEXT_APP, "mm");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[11]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "mm");
+        cv.put(TableIndex.Session.NEXT_APP, "phone");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[11]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "phone");
+        cv.put(TableIndex.Session.NEXT_APP, "mm");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[13]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "mm");
+        cv.put(TableIndex.Session.NEXT_APP, "takephoto");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[13]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "takephoto");
+        cv.put(TableIndex.Session.NEXT_APP, "mm");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[13]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "mm");
+        cv.put(TableIndex.Session.NEXT_APP, "phone");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[14]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "phone");
+        cv.put(TableIndex.Session.NEXT_APP, "sms");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[14]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "sms");
+        cv.put(TableIndex.Session.NEXT_APP, "chrome");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[15]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "chrome");
+        cv.put(TableIndex.Session.NEXT_APP, "meituan");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[15]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "meituan");
+        cv.put(TableIndex.Session.NEXT_APP, "mm");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[17]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "mm");
+        cv.put(TableIndex.Session.NEXT_APP, "meituan");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[17]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "meituan");
+        cv.put(TableIndex.Session.NEXT_APP, "mm");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[17]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "mm");
+        cv.put(TableIndex.Session.NEXT_APP, "phone");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[17]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "phone");
+        cv.put(TableIndex.Session.NEXT_APP, "mm");
+        cv.put(TableIndex.Session.LOCATION, "COMPANY");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[18]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "mm");
+        cv.put(TableIndex.Session.NEXT_APP, "calance");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[18]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "calance");
+        cv.put(TableIndex.Session.NEXT_APP, "mm");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[18]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "mm");
+        cv.put(TableIndex.Session.NEXT_APP, "chrome");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[18]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "chrome");
+        cv.put(TableIndex.Session.NEXT_APP, "mm");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[18]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "mm");
+        cv.put(TableIndex.Session.NEXT_APP, "zhihu");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[18]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "zhihu");
+        cv.put(TableIndex.Session.NEXT_APP, "mm");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[19]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "mm");
+        cv.put(TableIndex.Session.NEXT_APP, "zhihu");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[19]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "zhihu");
+        cv.put(TableIndex.Session.NEXT_APP, "mm");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[19]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "mm");
+        cv.put(TableIndex.Session.NEXT_APP, "zhihu");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[19]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "zhifu");
+        cv.put(TableIndex.Session.NEXT_APP, "mm");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[18]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "mm");
+        cv.put(TableIndex.Session.NEXT_APP, "setting");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[19]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "setting");
+        cv.put(TableIndex.Session.NEXT_APP, "mm");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[19]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        cv = new ContentValues();
+        cv.put(TableIndex.Session.NOW_APP, "mm");
+        cv.put(TableIndex.Session.NEXT_APP, "phone");
+        cv.put(TableIndex.Session.LOCATION, "HOME");
+        cv.put(TableIndex.Session.TIME_PERIOD, DateUtil.dataArray[20]);
+        cv.put(TableIndex.Session.OPEN_TIME, DateUtil.formatDateWithHourMin(System.currentTimeMillis()));
+        db.insert("Session_", null, cv);
+
+        db.close();
+    }
 }
