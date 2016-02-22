@@ -108,7 +108,7 @@ public class CategroyMain extends AppCompatActivity implements SampleInterface {
 
 //        runDB();
 
-        insertVaritulData();
+//        insertVaritulData();
         startService();
 //        startService(new Intent(this, NotificationServer.class));
 //        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");

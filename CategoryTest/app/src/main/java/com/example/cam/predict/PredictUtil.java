@@ -155,9 +155,9 @@ public class PredictUtil {
     public void getSomeDataFromPackName(String packName) {
 //        ArrayList<DataBean> nextAppData = mDbHelper.getNextAppNew(packName);
         ArrayList<DataBean> nextAppData = mDbHelper.getNextAppNew70(packName);
-        String curTime = DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())];
+//        String curTime = DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())];
         //测试数据
-//        String curTime = DateUtil.dataArray[12];
+        String curTime = DateUtil.dataArray[11];
 
         PredictBean max = new PredictBean("", 0, 0);
 
