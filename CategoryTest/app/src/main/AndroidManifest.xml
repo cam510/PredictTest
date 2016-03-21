@@ -29,12 +29,26 @@
         android:theme="@style/AppTheme"
         android:persistent="true"
         >
-        <activity android:name=".CategroyMain" >
+        <activity android:name=".MyLanucher"
+            android:theme="@android:style/Theme.NoTitleBar"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.ASSIST" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".AllAppActivity"
+            android:theme="@android:style/Theme.NoTitleBar"
+            >
         </activity>
 
         <activity android:name=".LocationTypeActivity"
