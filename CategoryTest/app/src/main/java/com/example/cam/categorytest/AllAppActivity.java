@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.widget.GridView;
 
+import com.example.cam.adapter.AppAdapter;
+import com.example.cam.categoryUtil.PackageUtil;
 import com.example.cam.categoryUtil.PackageVO;
 
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ public class AllAppActivity extends Activity{
 
     private ArrayList<PackageVO> mAllAppList;
     private GridView mAllAppGridView;
+    private AppAdapter mAppAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,5 +25,8 @@ public class AllAppActivity extends Activity{
         setContentView(R.layout.activity_all_app);
 
         mAllAppGridView = (GridView) findViewById(R.id.gv_all_app);
+        mAllAppList = (ArrayList<PackageVO>) PackageUtil.getInstalledApps(this, true);
+        mAppAdapter = new AppAdapter(mAllAppList, this);
+        mAllAppGridView.setAdapter(mAppAdapter);
     }
 }

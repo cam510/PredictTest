@@ -1,5 +1,7 @@
 package com.example.cam.categoryUtil;
 
+import android.graphics.drawable.Drawable;
+
 import java.io.Serializable;
 
 
@@ -19,7 +21,7 @@ public class PackageVO implements Serializable, Comparable<PackageVO> {
 	public boolean systemApp = false;
 	
 	public long size = 0;
-//	public Drawable icon;
+	public Drawable icon;
 //	public int iconResId;
 
     public String[] requestedPermissions;

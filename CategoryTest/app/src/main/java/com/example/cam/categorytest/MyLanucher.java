@@ -22,6 +22,8 @@ public class MyLanucher extends Activity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launcher);
+        findViewById(R.id.tv_all_app).setOnClickListener(this);
+        findViewById(R.id.tv_setting).setOnClickListener(this);
     }
 
     @Override
@@ -30,10 +32,12 @@ public class MyLanucher extends Activity implements View.OnClickListener {
         Intent i;
         switch (id) {
             case R.id.tv_setting:
-                i = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                System.out.println("enter setting");
+                i = new Intent(Settings.ACTION_SETTINGS);
                 startActivity(i);
                 break;
             case R.id.tv_all_app:
+                System.out.println("enter all app");
                 i = new Intent(this, AllAppActivity.class);
                 startActivity(i);
                 break;
