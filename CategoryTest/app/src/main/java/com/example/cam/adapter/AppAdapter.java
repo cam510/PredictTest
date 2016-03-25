@@ -41,8 +41,8 @@ public class AppAdapter extends BaseAdapter{
     }
 
     @Override
-    public Object getItem(int position) {
-        return null;
+    public PackageVO getItem(int position) {
+        return mAppList.get(position);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class AppAdapter extends BaseAdapter{
         }
 
         PackageVO p = mAppList.get(position);
-        holder.mIcon.setImageDrawable(p.icon);
+//        holder.mIcon.setImageDrawable(p.icon);
         holder.mAppName.setText("" + p.appname);
 
         return convertView;

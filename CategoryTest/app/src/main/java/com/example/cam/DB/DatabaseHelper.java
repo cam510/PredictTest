@@ -10,16 +10,21 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.example.cam.categoryUtil.PackageVO;
+import com.example.cam.categorytest.MyLanucher;
 import com.example.cam.commonUtils.DateUtil;
 import com.example.cam.predict.DataBean;
 import com.example.cam.predict.PredictBean;
 import com.example.cam.predict.PredictUtil;
 import com.example.cam.server.ReceviceObject;
+import com.example.cam.utils.NetworkUtil;
 
+import java.sql.SQLData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.TimeZone;
 
 /**
  * Created by cam on 1/7/16.
@@ -103,6 +108,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + TableIndex.Period._23_24 + " INTEGER DEFAULT 0"
             + " )";
 
+    //创建session表
+    private String CREATE_NEWRECORE_TABLE = "CREATE TABLE IF NOT EXISTS " +
+            TableIndex.NewRecore.TABLE_NAME + " ( "
+            + TableIndex.NewRecore.ID + " INTEGER PRIMARY KEY,"
+            + TableIndex.NewRecore.PACKAGE_NAME + " TEXT DEFAULT NULL, "
+            + TableIndex.NewRecore.USE_TIME + " TEXT DEFAULT NULL, "
+            + TableIndex.NewRecore.USE_PERIOD + " TEXT DEFAULT NULL, "
+            + TableIndex.NewRecore.LOCATION_LA + " DOUBLE DEFAULT 0, "
+            + TableIndex.NewRecore.LOCATION_LO + " DOUBLE DEFAULT 0,"
+            + TableIndex.NewRecore.IS_WORK + " INTEGER DEFAULT 0,"
+            + TableIndex.NewRecore.GPRS + " INTEGER DEFAULT 0,"
+            + TableIndex.NewRecore.WIFI + " TEXT DEFAULT NULL,"
+            + TableIndex.NewRecore.BLUETOOTH + " INTEGER DEFAULT 0,"
+            + TableIndex.NewRecore.LIGHT_SENSOR + " Float DEFAULT 0,"
+            + TableIndex.NewRecore.ACC_SENSOR_X + " Float DEFAULT 0,"
+            + TableIndex.NewRecore.ACC_SENSOR_Y + " Float DEFAULT 0,"
+            + TableIndex.NewRecore.ACC_SENSOR_Z + " Float DEFAULT 0,"
+            + TableIndex.NewRecore.Notification + " INTEGER DEFAULT 0"
+            + " )";
+
     public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, DB_NAME, factory, DATABASE_VERSION);
     }
@@ -120,6 +145,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_INTIMATE_TABLE);
         db.execSQL(CREATE_PERIOD_TABLE);
         db.execSQL(CREATE_LOCATION_TABLE);
+        db.execSQL(CREATE_NEWRECORE_TABLE);
     }
 
     @Override
@@ -711,5 +737,80 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 //        db.close();
         return dbData;
+    }
+
+    public void updateLocation(SQLiteDatabase db) {
+        try {
+            Cursor cursor = db.query(TableIndex.NewRecore.TABLE_NAME,
+                    null,null,null, null, null, null);
+            if (cursor != null) if (cursor.getCount() > 0) {
+                cursor.moveToLast();
+                int id = cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.ID));
+                ContentValues cv = new ContentValues();
+                cv.put(TableIndex.NewRecore.LOCATION_LA, MyLanucher.mLastLatitude);
+                cv.put(TableIndex.NewRecore.LOCATION_LO, MyLanucher.mLastLongtitude);
+                db.update(TableIndex.NewRecore.TABLE_NAME, cv, TableIndex.NewRecore.ID + " = ?", new String[]{"" + id});
+            }
+        } catch (android.database.SQLException ex) {
+            ex.printStackTrace();
+        } finally {
+            db.close();
+        }
+    }
+
+    public void insertNewRecored(SQLiteDatabase db, String packName, Context context, float lux
+    , float[] acc, int notification) {
+        ContentValues cv = new ContentValues();
+        Calendar c = Calendar.getInstance();
+        c.setTimeZone(TimeZone.getTimeZone("GMT+8:00"));
+        int isWork = c.get(Calendar.DAY_OF_WEEK);
+        if (isWork == 6 || isWork == 7) {
+            isWork = 1;
+        } else {
+            isWork = 0;
+        }
+        cv.put(TableIndex.NewRecore.PACKAGE_NAME, packName);
+        cv.put(TableIndex.NewRecore.USE_TIME, DateUtil.formatDateWithHourMinSecond(System.currentTimeMillis()));
+        cv.put(TableIndex.NewRecore.USE_PERIOD, DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())]);
+        cv.put(TableIndex.NewRecore.LOCATION_LA, MyLanucher.mLastLatitude);
+        cv.put(TableIndex.NewRecore.LOCATION_LO, MyLanucher.mLastLongtitude);
+        cv.put(TableIndex.NewRecore.IS_WORK, isWork);
+        cv.put(TableIndex.NewRecore.GPRS, NetworkUtil.isGprsConnected(context));
+        if (NetworkUtil.isWifiConnected(context) == 1) {
+            cv.put(TableIndex.NewRecore.WIFI, NetworkUtil.getWifiSSID(context));
+        }
+        cv.put(TableIndex.NewRecore.BLUETOOTH, NetworkUtil.getBluetoothState(context));
+        cv.put(TableIndex.NewRecore.LIGHT_SENSOR, lux);
+        cv.put(TableIndex.NewRecore.ACC_SENSOR_X, acc[0]);
+        cv.put(TableIndex.NewRecore.ACC_SENSOR_Y, acc[1]);
+        cv.put(TableIndex.NewRecore.ACC_SENSOR_Z, acc[2]);
+        cv.put(TableIndex.NewRecore.Notification, notification);
+        db.insert(TableIndex.NewRecore.TABLE_NAME, null, cv);
+    }
+
+    public void getAllNewRecore() {
+        Cursor cursor = this.getReadableDatabase().query(TableIndex.NewRecore.TABLE_NAME,
+                null, null, null, null, null, null);
+        if (cursor != null && cursor.getCount() > 0) {
+            while(cursor.moveToNext()) {
+                System.out.println("the data -> "
+                + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.PACKAGE_NAME ))
+                + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_TIME ))
+                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_PERIOD))
+                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LA))
+                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LO))
+                + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.IS_WORK))
+                + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.GPRS))
+                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.WIFI))
+                + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.BLUETOOTH))
+                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LIGHT_SENSOR))
+                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_X))
+                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_Y))
+                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_Z))
+                + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.Notification))
+                );
+            }
+
+        }
     }
 }

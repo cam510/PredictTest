@@ -77,4 +77,23 @@ public class TableIndex {
 
     public static String[] S_ADDRESS_TYPE = new String[] {"HOME", "COMPANY", "SCHOOL",
             "ON_WAY_TO_WORK", "ELSE"};
+
+    public static class NewRecore{
+        public final static String ID = "_id";
+        public final static String TABLE_NAME = "NewRecore";
+        public final static String PACKAGE_NAME = "Package_Name";
+        public final static String USE_TIME = "Use_Tiem";          //使用时间
+        public final static String USE_PERIOD = "Use_Period";      //使用区间
+        public final static String LOCATION_LA = "Location_La";    //经度
+        public final static String LOCATION_LO = "Location_Lo";    //维度
+        public final static String IS_WORK = "IsWork";            //是否工作日  //0工作日 1非工作日
+        public final static String GPRS = "Gprs";                   //是否打开gprs 0未打开  1 打开
+        public final static String WIFI = "WIFI";                   //连接wifi名字
+        public final static String BLUETOOTH = "Bluetooth";         //是否打开蓝牙 0未打开  1 打开
+        public final static String LIGHT_SENSOR  = "Light_Sensor";  //光传感器
+        public final static String ACC_SENSOR_X  = "Acc_Sensor_X";      //加速度传感器X
+        public final static String ACC_SENSOR_Y  = "Acc_Sensor_Y";      //加速度传感器X
+        public final static String ACC_SENSOR_Z  = "Acc_Sensor_Z";      //加速度传感器X
+        public final static String Notification = "Notification";    //是否关注  0默认非通知栏收到 1急 2一般 3 忽略
+    }
 }

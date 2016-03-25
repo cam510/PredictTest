@@ -175,7 +175,7 @@ public class GetCurrentAppServer extends IntentService{
     //设置相关参数
     private void setLocationOption(){
         LocationClientOption option = new LocationClientOption();
-        option.setOpenGps(true);				//打开gps
+        option.setOpenGps(false);				//打开gps
         option.setAddrType("all");		//设置地址信息，仅设置为“all”时有地址信息，默认无地址信息
         option.setScanSpan(0);	//设置定位模式，小于1秒则一次定位;大于等于1秒则定时定位
         mLocClient.setLocOption(option);

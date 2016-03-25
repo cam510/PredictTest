@@ -246,7 +246,7 @@ public class PackageUtil {
                 newInfo.targetSdkVersion = packageInfo.applicationInfo.targetSdkVersion;
                 newInfo.systemApp = isSystemPackage(packageInfo);
                 newInfo.requestedPermissions = packageInfo.requestedPermissions;
-				newInfo.icon = packageInfo.applicationInfo.loadIcon(ctx.getPackageManager());
+//				newInfo.icon = packageInfo.applicationInfo.loadIcon(ctx.getPackageManager());
 
             } catch (NameNotFoundException e) {
                 e.printStackTrace();
