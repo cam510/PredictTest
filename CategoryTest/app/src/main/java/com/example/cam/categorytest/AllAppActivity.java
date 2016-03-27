@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import com.example.cam.MyApplication;
 import com.example.cam.adapter.AppAdapter;
 import com.example.cam.categoryUtil.PackageUtil;
 import com.example.cam.categoryUtil.PackageVO;
@@ -39,5 +40,11 @@ public class AllAppActivity extends Activity{
                 PackageUtil.openPackageName(AllAppActivity.this, p.pname);
             }
         });
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        MyApplication.getmDbHelper().getAllNewRecore();
     }
 }

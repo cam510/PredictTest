@@ -794,8 +794,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (cursor != null && cursor.getCount() > 0) {
             while(cursor.moveToNext()) {
                 System.out.println("the data -> "
-                + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.PACKAGE_NAME ))
-                + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_TIME ))
+                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.PACKAGE_NAME ))
+                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_TIME ))
                 + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_PERIOD))
                 + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LA))
                 + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LO))

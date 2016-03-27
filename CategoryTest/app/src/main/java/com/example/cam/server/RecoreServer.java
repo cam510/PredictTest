@@ -64,7 +64,7 @@ public class RecoreServer extends NotificationListenerService {
         ligthSensor = sm.getDefaultSensor(Sensor.TYPE_LIGHT);
         accSensor = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sm.registerListener(lightListener, ligthSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        sm.registerListener(accListener, ligthSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sm.registerListener(accListener, accSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
         //获取地理位置管理器
 //        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
