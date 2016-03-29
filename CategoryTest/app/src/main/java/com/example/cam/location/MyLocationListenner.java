@@ -51,16 +51,21 @@ public class MyLocationListenner implements BDLocationListener {
                 locationStr = getMaxLocation();
             }
         } else {
-            System.out.println("location is -> " + location.getAddrStr());
+            System.out.println("location is -> " + location.getAddrStr() + " lo -> "
+                    + location.getLongitude() + " la -> " + location.getLatitude());
             locationStr = location.getAddrStr();
             lastLocation = locationStr;
-            if (mLocationMap.get(locationStr) == null) {
-                mLocationMap.put(locationStr, 1);
-            } else {
-                int count = mLocationMap.get(locationStr);
-                count++;
-                mLocationMap.put(locationStr, count);
-            }
+//            if (mLocationMap.get(locationStr) == null) {
+//                mLocationMap.put(locationStr, 1);
+//            } else {
+//                int count = mLocationMap.get(locationStr);
+//                count++;
+//                mLocationMap.put(locationStr, count);
+//            }
+//            MyApplication.mLastLatitude = location.getLatitude();
+//            MyApplication.mLastLongtitude = location.getLongitude();
+            MyApplication.getmDbHelper().updateLocation(MyApplication.getmDbHelper().getWritableDatabase()
+                    , location.getLatitude(), location.getLongitude());
         }
 //        MyApplication.getmDbHelper().insertSession(curPackName, locationStr);
         if (lastLocation == null || locationStr == null) {
@@ -86,9 +91,6 @@ public class MyLocationListenner implements BDLocationListener {
 //            }
 //            MyApplication.getmDbHelper().insertSession(curPackName, MyApplication.getLocationType());
 //            System.out.println("enter if insertsession");
-            MyLanucher.mLastLatitude = location.getLatitude();
-            MyLanucher.mLastLongtitude = location.getLongitude();
-
         } else {
             System.out.println("enter else insertsession");
 //            MyApplication.getmDbHelper().insertSession(curPackName, MyApplication.getLocationType());
@@ -135,18 +137,24 @@ public class MyLocationListenner implements BDLocationListener {
                 locationStr = getMaxLocation();
             }
         } else {
-            System.out.println("location is -> " + poiLocation.getAddrStr());
+            System.out.println("poi location is -> " + poiLocation.getAddrStr() + " lo -> "
+                    + poiLocation.getLongitude() + " la -> " + poiLocation.getLatitude());
             locationStr = poiLocation.getAddrStr();
             lastLocation = locationStr;
-            if (mLocationMap.get(locationStr) == null) {
-                mLocationMap.put(locationStr, 1);
-            } else {
-                int count = mLocationMap.get(locationStr);
-                count++;
-                mLocationMap.put(locationStr, count);
-            }
+//            if (mLocationMap.get(locationStr) == null) {
+//                mLocationMap.put(locationStr, 1);
+//            } else {
+//                int count = mLocationMap.get(locationStr);
+//                count++;
+//                mLocationMap.put(locationStr, count);
+//            }
+            MyApplication.mLastLatitude = poiLocation.getLatitude();
+            MyApplication.mLastLongtitude = poiLocation.getLongitude();
+            MyApplication.getmDbHelper().updateLocation(MyApplication.getmDbHelper().getWritableDatabase()
+                    , poiLocation.getLatitude(), poiLocation.getLongitude());
+
         }
-        MyApplication.getmDbHelper().insertSession(curPackName, locationStr);
+//        MyApplication.getmDbHelper().insertSession(curPackName, locationStr);
         mLocationClient.stop();
     }
 

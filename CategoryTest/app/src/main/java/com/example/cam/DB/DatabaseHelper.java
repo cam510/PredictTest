@@ -7,8 +7,10 @@ import android.content.pm.PackageInstaller;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.media.AudioManager;
 import android.util.Log;
 
+import com.example.cam.MyApplication;
 import com.example.cam.categoryUtil.PackageVO;
 import com.example.cam.categorytest.MyLanucher;
 import com.example.cam.commonUtils.DateUtil;
@@ -121,6 +123,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + TableIndex.NewRecore.GPRS + " INTEGER DEFAULT 0,"
             + TableIndex.NewRecore.WIFI + " TEXT DEFAULT NULL,"
             + TableIndex.NewRecore.BLUETOOTH + " INTEGER DEFAULT 0,"
+            + TableIndex.NewRecore.WEEKDAY + " TEXT DEFAULT NULL,"
+            + TableIndex.NewRecore.HEADPHONE + " INTEGER DEFAULT NULL,"
             + TableIndex.NewRecore.LIGHT_SENSOR + " Float DEFAULT 0,"
             + TableIndex.NewRecore.ACC_SENSOR_X + " Float DEFAULT 0,"
             + TableIndex.NewRecore.ACC_SENSOR_Y + " Float DEFAULT 0,"
@@ -739,7 +743,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return dbData;
     }
 
-    public void updateLocation(SQLiteDatabase db) {
+    public void updateLocation(SQLiteDatabase db, double la, double lo) {
+        MyApplication.mLastLatitude = la;
+        MyApplication.mLastLongtitude = lo;
         try {
             Cursor cursor = db.query(TableIndex.NewRecore.TABLE_NAME,
                     null,null,null, null, null, null);
@@ -747,8 +753,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 cursor.moveToLast();
                 int id = cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.ID));
                 ContentValues cv = new ContentValues();
-                cv.put(TableIndex.NewRecore.LOCATION_LA, MyLanucher.mLastLatitude);
-                cv.put(TableIndex.NewRecore.LOCATION_LO, MyLanucher.mLastLongtitude);
+                cv.put(TableIndex.NewRecore.LOCATION_LA, la);
+                cv.put(TableIndex.NewRecore.LOCATION_LO, lo);
                 db.update(TableIndex.NewRecore.TABLE_NAME, cv, TableIndex.NewRecore.ID + " = ?", new String[]{"" + id});
             }
         } catch (android.database.SQLException ex) {
@@ -758,28 +764,38 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * insert new table
+     * */
     public void insertNewRecored(SQLiteDatabase db, String packName, Context context, float lux
     , float[] acc, int notification) {
         ContentValues cv = new ContentValues();
         Calendar c = Calendar.getInstance();
         c.setTimeZone(TimeZone.getTimeZone("GMT+8:00"));
         int isWork = c.get(Calendar.DAY_OF_WEEK);
+        int weekday = c.get(Calendar.DAY_OF_WEEK);
         if (isWork == 6 || isWork == 7) {
             isWork = 1;
         } else {
             isWork = 0;
         }
+        int headPhone = 0;
+        AudioManager localAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        headPhone = localAudioManager.isWiredHeadsetOn() ? 1 : 0;
+
         cv.put(TableIndex.NewRecore.PACKAGE_NAME, packName);
         cv.put(TableIndex.NewRecore.USE_TIME, DateUtil.formatDateWithHourMinSecond(System.currentTimeMillis()));
         cv.put(TableIndex.NewRecore.USE_PERIOD, DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())]);
-        cv.put(TableIndex.NewRecore.LOCATION_LA, MyLanucher.mLastLatitude);
-        cv.put(TableIndex.NewRecore.LOCATION_LO, MyLanucher.mLastLongtitude);
+        cv.put(TableIndex.NewRecore.LOCATION_LA, MyApplication.mLastLatitude);
+        cv.put(TableIndex.NewRecore.LOCATION_LO, MyApplication.mLastLongtitude);
         cv.put(TableIndex.NewRecore.IS_WORK, isWork);
         cv.put(TableIndex.NewRecore.GPRS, NetworkUtil.isGprsConnected(context));
         if (NetworkUtil.isWifiConnected(context) == 1) {
             cv.put(TableIndex.NewRecore.WIFI, NetworkUtil.getWifiSSID(context));
         }
         cv.put(TableIndex.NewRecore.BLUETOOTH, NetworkUtil.getBluetoothState(context));
+        cv.put(TableIndex.NewRecore.WEEKDAY, weekday);
+        cv.put(TableIndex.NewRecore.HEADPHONE, headPhone);
         cv.put(TableIndex.NewRecore.LIGHT_SENSOR, lux);
         cv.put(TableIndex.NewRecore.ACC_SENSOR_X, acc[0]);
         cv.put(TableIndex.NewRecore.ACC_SENSOR_Y, acc[1]);
@@ -803,6 +819,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.GPRS))
                 + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.WIFI))
                 + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.BLUETOOTH))
+                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.WEEKDAY))
+                + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.HEADPHONE))
                 + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LIGHT_SENSOR))
                 + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_X))
                 + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_Y))
@@ -810,7 +828,53 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.Notification))
                 );
             }
-
         }
+    }
+
+    public String outputAllNewRecore() {
+        Cursor cursor = this.getReadableDatabase().query(TableIndex.NewRecore.TABLE_NAME,
+                null, null, null, null, null, null);
+        StringBuilder sb = new StringBuilder();
+        if (cursor != null && cursor.getCount() > 0) {
+            while (cursor.moveToNext()) {
+                System.out.println("the data -> "
+                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.PACKAGE_NAME))
+                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_TIME))
+                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_PERIOD))
+                                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LA))
+                                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LO))
+                                + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.IS_WORK))
+                                + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.GPRS))
+                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.WIFI))
+                                + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.BLUETOOTH))
+                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.WEEKDAY))
+                                + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.HEADPHONE))
+                                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LIGHT_SENSOR))
+                                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_X))
+                                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_Y))
+                                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_Z))
+                                + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.Notification))
+                );
+                sb.append("the data -> ");
+                sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.PACKAGE_NAME)));
+                sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_TIME)));
+                sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_PERIOD)));
+                sb.append(" " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LA)));
+                sb.append(" " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LO)));
+                sb.append(" " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.IS_WORK)));
+                sb.append(" " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.GPRS)));
+                sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.WIFI)));
+                sb.append(" " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.BLUETOOTH)));
+                sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.WEEKDAY)));
+                sb.append(" " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.HEADPHONE)));
+                sb.append(" " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LIGHT_SENSOR)));
+                sb.append(" " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_X)));
+                sb.append(" " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_Y)));
+                sb.append(" " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_Z)));
+                sb.append(" " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.Notification)));
+                sb.append("\n");
+            }
+        }
+        return sb.toString();
     }
 }

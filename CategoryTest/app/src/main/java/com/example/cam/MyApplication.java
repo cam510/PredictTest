@@ -31,6 +31,9 @@ public class MyApplication extends Application{
     private static String lastLocation = "";
     private static boolean isDialogShow = false;
 
+    public static double mLastLatitude = 0;
+    public static double mLastLongtitude = 0;
+
     @Override
     public void onCreate() {
         super.onCreate();

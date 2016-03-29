@@ -25,9 +25,6 @@ public class MyLanucher extends Activity implements View.OnClickListener {
     private ArrayList<PackageVO> mPredictList = new ArrayList<PackageVO>();
     private ArrayList<PackageVO> mAssicoList = new ArrayList<PackageVO>();
 
-    public static double mLastLatitude = 0;
-    public static double mLastLongtitude = 0;
-
     private LocationClient mLocClient;
 
     @Override

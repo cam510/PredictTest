@@ -95,5 +95,7 @@ public class TableIndex {
         public final static String ACC_SENSOR_Y  = "Acc_Sensor_Y";      //加速度传感器X
         public final static String ACC_SENSOR_Z  = "Acc_Sensor_Z";      //加速度传感器X
         public final static String Notification = "Notification";    //是否关注  0默认非通知栏收到 1急 2一般 3 忽略
+        public final static String WEEKDAY = "Weekday";              //记录星期几
+        public final static String HEADPHONE = "Head_Phone";          //是否有耳机
     }
 }
