@@ -84,6 +84,7 @@ public class TableIndex {
         public final static String PACKAGE_NAME = "Package_Name";
         public final static String USE_TIME = "Use_Tiem";          //使用时间
         public final static String USE_PERIOD = "Use_Period";      //使用区间
+        public final static String USE_SECOND = "Use_Second";       //记录使用的时间
         public final static String LOCATION_LA = "Location_La";    //经度
         public final static String LOCATION_LO = "Location_Lo";    //维度
         public final static String IS_WORK = "IsWork";            //是否工作日  //0工作日 1非工作日

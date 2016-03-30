@@ -117,6 +117,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + TableIndex.NewRecore.PACKAGE_NAME + " TEXT DEFAULT NULL, "
             + TableIndex.NewRecore.USE_TIME + " TEXT DEFAULT NULL, "
             + TableIndex.NewRecore.USE_PERIOD + " TEXT DEFAULT NULL, "
+            + TableIndex.NewRecore.USE_SECOND + " LONG DEFAULT 0, "
             + TableIndex.NewRecore.LOCATION_LA + " DOUBLE DEFAULT 0, "
             + TableIndex.NewRecore.LOCATION_LO + " DOUBLE DEFAULT 0,"
             + TableIndex.NewRecore.IS_WORK + " INTEGER DEFAULT 0,"
@@ -813,6 +814,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.PACKAGE_NAME ))
                 + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_TIME ))
                 + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_PERIOD))
+                + " " + cursor.getLong(cursor.getColumnIndex(TableIndex.NewRecore.USE_SECOND))
                 + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LA))
                 + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LO))
                 + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.IS_WORK))
@@ -831,6 +833,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    public void updateSecond(SQLiteDatabase db, long second) {
+        int id;
+        Cursor cursor = this.getReadableDatabase().query(TableIndex.NewRecore.TABLE_NAME,
+                null, null, null, null, null, null);
+        if (cursor != null && cursor.getCount() > 1) {
+            cursor.moveToLast();
+            id = cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.ID));
+            id--;
+            ContentValues cv = new ContentValues();
+            cv.put(TableIndex.NewRecore.USE_SECOND, second);
+            db.update(TableIndex.NewRecore.TABLE_NAME, cv, TableIndex.NewRecore.ID + " = ?", new String[]{"" + id});
+        }
+        cursor.close();
+        db.close();
+    }
+
     public String outputAllNewRecore() {
         Cursor cursor = this.getReadableDatabase().query(TableIndex.NewRecore.TABLE_NAME,
                 null, null, null, null, null, null);
@@ -841,6 +859,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                                 + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.PACKAGE_NAME))
                                 + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_TIME))
                                 + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_PERIOD))
+                                + " " + cursor.getLong(cursor.getColumnIndex(TableIndex.NewRecore.USE_SECOND))
                                 + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LA))
                                 + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LO))
                                 + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.IS_WORK))
@@ -859,6 +878,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.PACKAGE_NAME)));
                 sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_TIME)));
                 sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_PERIOD)));
+                sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_SECOND)));
                 sb.append(" " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LA)));
                 sb.append(" " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LO)));
                 sb.append(" " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.IS_WORK)));

@@ -75,6 +75,7 @@ public class RecoreServer extends NotificationListenerService {
     private boolean isStart = true;
     private boolean isScreenOn = true;
     private HashMap<String, ReceviceObject> myReceiveNotification = new HashMap<String, ReceviceObject>();
+    private long lastTime = 0L;
 
     private boolean needUpload = false;
 
@@ -95,6 +96,7 @@ public class RecoreServer extends NotificationListenerService {
 
         mLocClient = MyApplication.mLocationClient;
         setLocationOption();
+        lastTime = System.currentTimeMillis();
         //just for test
 //        new uploadThread().start();
         //启动线程，不断检测当前应用
@@ -113,6 +115,9 @@ public class RecoreServer extends NotificationListenerService {
                             System.out.println("runningActivity -> " + runningActivity);
                             MyApplication.getmDbHelper().insertNewRecored(MyApplication.getmDbHelper().getWritableDatabase()
                                     , runningActivity, getApplicationContext(), lightListener.getLux(), accListener.getmAcc(), 0);
+                            MyApplication.getmDbHelper().updateSecond(MyApplication.getmDbHelper().getWritableDatabase()
+                                    , (System.currentTimeMillis() - lastTime) / 1000);
+                            lastTime = System.currentTimeMillis();
                             lastApp = runningActivity;
 //                            if (mLocClient.isStarted()) {
 //                                mLocClient.stop();
