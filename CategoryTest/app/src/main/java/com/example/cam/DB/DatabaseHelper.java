@@ -872,7 +872,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 sb.append(" " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_Y)));
                 sb.append(" " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_Z)));
                 sb.append(" " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.Notification)));
-                sb.append("\n");
+                sb.append("\r\n");
             }
         }
         return sb.toString();
