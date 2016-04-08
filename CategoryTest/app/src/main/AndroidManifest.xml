@@ -33,21 +33,25 @@
         android:theme="@style/AppTheme"
         android:persistent="true"
         >
-        <activity android:name=".MyLanucher"
-            android:theme="@android:style/Theme.NoTitleBar"
+        <activity android:name="com.example.cam.ruibin.RBMainActivity"
+            android:excludeFromRecents="true"
+            android:theme="@style/AppTheme"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+
+                <!--
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
+                -->
             </intent-filter>
-
+            <!--
             <intent-filter>
                 <action android:name="android.intent.action.ASSIST" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            -->
         </activity>
 
         <activity android:name=".AllAppActivity"
@@ -98,6 +102,30 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <service
+            android:name="com.example.cam.ruibin.DeamonService"
+            android:enabled="true"
+            android:exported="true" />
+        <service android:name="com.example.cam.ruibin.DeamonService$InnerService" />
+
+        <receiver
+            android:name="com.example.cam.ruibin.BootReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":deamon">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.USER_PRESENT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
+
+
         <!-- ATTENTION: This was auto-generated to add Google Play services to your project for
              App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
         <meta-data

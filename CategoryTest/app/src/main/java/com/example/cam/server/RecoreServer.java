@@ -84,12 +84,12 @@ public class RecoreServer extends NotificationListenerService {
 
     @Override
     public void onCreate() {
-        super.onCreate();
-        sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        ligthSensor = sm.getDefaultSensor(Sensor.TYPE_LIGHT);
-        accSensor = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        sm.registerListener(lightListener, ligthSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        sm.registerListener(accListener, accSensor, SensorManager.SENSOR_DELAY_NORMAL);
+//        super.onCreate();
+//        sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+//        ligthSensor = sm.getDefaultSensor(Sensor.TYPE_LIGHT);
+//        accSensor = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+//        sm.registerListener(lightListener, ligthSensor, SensorManager.SENSOR_DELAY_NORMAL);
+//        sm.registerListener(accListener, accSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
         //获取地理位置管理器
 //        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -100,56 +100,56 @@ public class RecoreServer extends NotificationListenerService {
         //just for test
 //        new uploadThread().start();
         //启动线程，不断检测当前应用
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (isStart) {
-                    try {
-                        final String runningActivity = getRunningAppPackName();
-                        if (!lastApp.equals(runningActivity)
-                                && isScreenOn
-                                && !runningActivity.contains("LAUNCHER")
-                                && !runningActivity.contains("launcher")
-                                && !runningActivity.contains("homescreen")
-                                && !runningActivity.contains("systemui")) {
-                            System.out.println("runningActivity -> " + runningActivity);
-                            MyApplication.getmDbHelper().insertNewRecored(MyApplication.getmDbHelper().getWritableDatabase()
-                                    , runningActivity, getApplicationContext(), lightListener.getLux(), accListener.getmAcc(), 0);
-                            MyApplication.getmDbHelper().updateSecond(MyApplication.getmDbHelper().getWritableDatabase()
-                                    , (System.currentTimeMillis() - lastTime) / 1000);
-                            lastTime = System.currentTimeMillis();
-                            lastApp = runningActivity;
-//                            if (mLocClient.isStarted()) {
-//                                mLocClient.stop();
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                while (isStart) {
+//                    try {
+//                        final String runningActivity = getRunningAppPackName();
+//                        if (!lastApp.equals(runningActivity)
+//                                && isScreenOn
+//                                && !runningActivity.contains("LAUNCHER")
+//                                && !runningActivity.contains("launcher")
+//                                && !runningActivity.contains("homescreen")
+//                                && !runningActivity.contains("systemui")) {
+//                            System.out.println("runningActivity -> " + runningActivity);
+//                            MyApplication.getmDbHelper().insertNewRecored(MyApplication.getmDbHelper().getWritableDatabase()
+//                                    , runningActivity, getApplicationContext(), lightListener.getLux(), accListener.getmAcc(), 0);
+//                            MyApplication.getmDbHelper().updateSecond(MyApplication.getmDbHelper().getWritableDatabase()
+//                                    , (System.currentTimeMillis() - lastTime) / 1000);
+//                            lastTime = System.currentTimeMillis();
+//                            lastApp = runningActivity;
+////                            if (mLocClient.isStarted()) {
+////                                mLocClient.stop();
+////                            }
+//                            mLocClient.start();
+//                        }
+//                        int hour = DateUtil.toHour(System.currentTimeMillis());
+//                        if (hour == 11 || hour == 23) {
+//                            if (needUpload) {
+//                                if (NetworkUtil.isGprsConnected(MyApplication.getAppInstance()) == 1
+//                                        || NetworkUtil.isWifiConnected(MyApplication.getAppInstance()) == 1) {
+//                                    new uploadThread().start();
+//                                }
 //                            }
-                            mLocClient.start();
-                        }
-                        int hour = DateUtil.toHour(System.currentTimeMillis());
-                        if (hour == 11 || hour == 23) {
-                            if (needUpload) {
-                                if (NetworkUtil.isGprsConnected(MyApplication.getAppInstance()) == 1
-                                        || NetworkUtil.isWifiConnected(MyApplication.getAppInstance()) == 1) {
-                                    new uploadThread().start();
-                                }
-                            }
-//                            needUpload = false;
-                        } else {
-                            needUpload = true;
-                        }
-                        Thread.sleep(5000);
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            }
-        }).start();
+////                            needUpload = false;
+//                        } else {
+//                            needUpload = true;
+//                        }
+//                        Thread.sleep(5000);
+//                    } catch (InterruptedException ex) {
+//                        ex.printStackTrace();
+//                    }
+//                }
+//            }
+//        }).start();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        sm.unregisterListener(lightListener);
-        sm.unregisterListener(accListener);
+//        sm.unregisterListener(lightListener);
+//        sm.unregisterListener(accListener);
     }
 
 //    public void getLocation() {

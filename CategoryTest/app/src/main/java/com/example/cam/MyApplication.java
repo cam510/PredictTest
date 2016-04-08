@@ -39,7 +39,7 @@ public class MyApplication extends Application{
         super.onCreate();
         AppInstance = this;
         mDbHelper = new DatabaseHelper(this);
-        mDbHelper.onCreate(mDbHelper.getWritableDatabase());
+//        mDbHelper.onCreate(mDbHelper.getWritableDatabase());
 
         //百度定位
         mLocationClient = new LocationClient(this);
