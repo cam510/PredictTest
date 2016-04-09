@@ -349,7 +349,7 @@ public class RecoreServer extends NotificationListenerService {
             allParams.put("log", phone);
 
             try {
-                URL url = new URL("http://120.24.65.236:8080/JCtest/index.jsp");
+                URL url = new URL("http://120.24.65.236:8080/JCtest/saveLogAction.action");
                 conn = (HttpURLConnection) url.openConnection();
                 conn.setConnectTimeout(120000);
                 conn.setDoInput(true);        // 允许输入

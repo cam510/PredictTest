@@ -26,13 +26,17 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DeamonService extends Service {
 
@@ -87,7 +91,6 @@ public class DeamonService extends Service {
         mLocClient = MyApplication.mLocationClient;
         setLocationOption();
         lastTime = System.currentTimeMillis();
-
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -254,5 +257,96 @@ public class DeamonService extends Service {
                 e.printStackTrace();
             }
         }
+    }
+
+    class uploadThread2 extends Thread {
+        String multipart_form_data = "multipart/form-data";
+        String twoHyphens = "--";
+        String boundary = "****************fD4fH3gL0hK7aI6";    // 数据分隔符
+        String lineEnd = System.getProperty("line.separator");
+
+        @Override
+        public void run() {
+            super.run();
+            HttpURLConnection conn = null;
+            DataOutputStream output = null;
+            BufferedReader input = null;
+
+            String phone = android.os.Build.MANUFACTURER;
+            TelephonyManager tm = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+            String deviceId = tm.getDeviceId();
+            String data = MyApplication.getmDbHelper().outputAllNewRecore();
+            Map<String, String> allParams = new HashMap<String, String>();
+            allParams.put("phone", phone);
+            allParams.put("mac", phone);
+            allParams.put("log", phone);
+
+            try {
+                URL url = new URL("http://120.24.65.236:8080/JCtest/saveLogAction.action");
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setConnectTimeout(120000);
+                conn.setDoInput(true);        // 允许输入
+                conn.setDoOutput(true);        // 允许输出
+                conn.setUseCaches(false);    // 不使用Cache
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Connection", "keep-alive");
+                conn.setRequestProperty("Content-Type", multipart_form_data + "; boundary=" + boundary);
+
+                conn.connect();
+                output = new DataOutputStream(conn.getOutputStream());
+
+                StringBuilder sb = new StringBuilder();
+
+                for(Map.Entry<String, String> param : allParams.entrySet()) {
+                    sb.append(twoHyphens + boundary + lineEnd);
+                    sb.append("Content-Disposition: form-data; name=\"" + param.getKey() + "\"" + lineEnd);
+                    sb.append(lineEnd);
+                    sb.append(param.getValue() + lineEnd);
+                }
+                try {
+                    output.writeBytes(sb.toString());// 发送表单字段数据
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                output.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);// 数据结束标志
+                output.flush();
+
+                int code = conn.getResponseCode();
+                if(code != 200) {
+                    throw new RuntimeException("请求‘" + url +"’失败！");
+                }
+
+                input = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder response = new StringBuilder();
+                String oneLine;
+                while((oneLine = input.readLine()) != null) {
+                    response.append(oneLine + lineEnd);
+                }
+                System.out.println("result -> " + response.toString());
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } finally {
+                // 统一释放资源
+                allParams.clear();
+                try {
+                    if(output != null) {
+                        output.close();
+                    }
+                    if(input != null) {
+                        input.close();
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                if(conn != null) {
+                    conn.disconnect();
+                }
+            }
+
+        }
+
     }
 }
