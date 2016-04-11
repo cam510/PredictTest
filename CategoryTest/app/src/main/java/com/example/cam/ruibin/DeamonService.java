@@ -194,7 +194,7 @@ public class DeamonService extends Service {
         LocationClientOption option = new LocationClientOption();
         option.setOpenGps(true);				//打开gps
         option.setAddrType("all");		//设置地址信息，仅设置为“all”时有地址信息，默认无地址信息
-        option.setScanSpan(0);	//设置定位模式，小于1秒则一次定位;大于等于1秒则定时定位
+        option.setScanSpan(3000);	//设置定位模式，小于1秒则一次定位;大于等于1秒则定时定位
         mLocClient.setLocOption(option);
     }
 

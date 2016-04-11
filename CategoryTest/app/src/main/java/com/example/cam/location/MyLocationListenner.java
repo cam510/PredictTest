@@ -96,7 +96,7 @@ public class MyLocationListenner implements BDLocationListener {
 //            MyApplication.getmDbHelper().insertSession(curPackName, MyApplication.getLocationType());
 //            PredictUtil.getmInstance(MyApplication.getAppInstance()).getSomeDataFromPackName(curPackName);
         }
-//        mLocationClient.stop();
+        mLocationClient.stop();
 
     }
 
