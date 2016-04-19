@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.pm.PackageInstaller;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.media.AudioManager;
 import android.util.Log;
@@ -835,21 +836,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void updateSecond(SQLiteDatabase db, long second) {
         int id;
-        Cursor cursor = db.query(TableIndex.NewRecore.TABLE_NAME,
-                null, null, null, null, null, null);
-        if (cursor != null && cursor.getCount() > 1) {
-            cursor.moveToLast();
-            id = cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.ID));
-            id--;
-            ContentValues cv = new ContentValues();
-            cv.put(TableIndex.NewRecore.USE_SECOND, second);
-            db.update(TableIndex.NewRecore.TABLE_NAME, cv, TableIndex.NewRecore.ID + " = ?", new String[]{"" + id});
+        try {
+            Cursor cursor = db.query(TableIndex.NewRecore.TABLE_NAME,
+                    null, null, null, null, null, null);
+            if (cursor != null && cursor.getCount() > 1) {
+                cursor.moveToLast();
+                id = cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.ID));
+                id--;
+                ContentValues cv = new ContentValues();
+                cv.put(TableIndex.NewRecore.USE_SECOND, second);
+                db.update(TableIndex.NewRecore.TABLE_NAME, cv, TableIndex.NewRecore.ID + " = ?", new String[]{"" + id});
+            }
+            System.out.println("cursor == null -> " + (cursor == null) + "sec -> " + second);
+            if (cursor != null) {
+                System.out.println("cursor.getCount() -> " + cursor.getCount());
+            }
+            cursor.close();
+        } catch (SQLiteException ex) {
+            ex.printStackTrace();
         }
-        System.out.println("cursor == null -> " + (cursor == null));
-        if (cursor != null) {
-            System.out.println("cursor.getCount() -> " + cursor.getCount());
-        }
-        cursor.close();
+
     }
 
     public String outputAllNewRecore() {

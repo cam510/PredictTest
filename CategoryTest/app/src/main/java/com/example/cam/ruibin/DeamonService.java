@@ -1,15 +1,23 @@
 package com.example.cam.ruibin;
 
+import android.annotation.TargetApi;
 import android.app.ActivityManager;
+import android.app.AppOpsManager;
 import android.app.Notification;
 import android.app.Service;
+import android.app.usage.UsageStats;
+import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
+import android.widget.Toast;
 
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
@@ -31,9 +39,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,12 +108,13 @@ public class DeamonService extends Service {
                 while (isStart) {
                     try {
                         final String runningActivity = getRunningAppPackName();
+//                        && !runningActivity.contains("LAUNCHER")
+//                                && !runningActivity.contains("launcher")
+//                                && !runningActivity.contains("homescreen")
+//                                && !runningActivity.contains("systemui")
                         if (!lastApp.equals(runningActivity)
                                 && isScreenOn
-                                && !runningActivity.contains("LAUNCHER")
-                                && !runningActivity.contains("launcher")
-                                && !runningActivity.contains("homescreen")
-                                && !runningActivity.contains("systemui")) {
+                                ) {
                             System.out.println("runningActivity -> " + runningActivity);
                             MyApplication.getmDbHelper().insertNewRecored(MyApplication.getmDbHelper().getWritableDatabase()
                                     , runningActivity, getApplicationContext(), lightListener.getLux(), accListener.getmAcc(), 0);
@@ -114,6 +126,10 @@ public class DeamonService extends Service {
 //                                mLocClient.stop();
 //                            }
                             mLocClient.start();
+                        } else if (!isScreenOn) {
+                            MyApplication.getmDbHelper().updateSecond(MyApplication.getmDbHelper().getWritableDatabase()
+                                    , (System.currentTimeMillis() - lastTime) / 1000);
+                            lastTime = System.currentTimeMillis();
                         }
                         int hour = DateUtil.toHour(System.currentTimeMillis());
                         if (hour == 11 || hour == 23) {
@@ -178,15 +194,64 @@ public class DeamonService extends Service {
     }
 
     //获取当前运行应用
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private String getRunningAppPackName() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             ActivityManager activityManager=(ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-            String runningActivity=activityManager.getRunningTasks(1).get(0).topActivity.getPackageName();
-            return runningActivity;
+            String runApp = activityManager.getRunningTasks(1).get(0).topActivity.getPackageName();
+            return runApp;
         } else {
-            ActivityManager activityManager = (ActivityManager) getSystemService(getApplicationContext().ACTIVITY_SERVICE);
-            return activityManager.getRunningAppProcesses().get(0).pkgList[0];
+            //method 1
+//            ActivityManager activityManager = (ActivityManager) getSystemService(getApplicationContext().ACTIVITY_SERVICE);
+//            return activityManager.getRunningAppProcesses().get(0).pkgList[0];
+
+            //method 2
+//            final int PROCESS_STATE_TOP = 2;
+//            try {
+//                Field processStateField = ActivityManager.RunningAppProcessInfo.class.getDeclaredField("processState");
+//                List<ActivityManager.RunningAppProcessInfo> processes = ((ActivityManager) getSystemService(Context.ACTIVITY_SERVICE)).getRunningAppProcesses();
+//                for (ActivityManager.RunningAppProcessInfo process : processes) {
+//                    System.out.println("process -> " + process.pkgList[0] + " state -> " + processStateField.getInt(process) );
+//                    if (process.importance <= ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+//                        int state = processStateField.getInt(process);
+//                        if (state == PROCESS_STATE_TOP) {
+//                            String[] packname = process.pkgList;
+//                            return packname[0];
+//                        }
+//                    }
+//                }
+//            } catch (Exception e) {
+//                throw new RuntimeException(e);
+//            }
+
+            //method 3
+            class RecentUseComparator implements Comparator<UsageStats> {
+
+                @Override
+                public int compare(UsageStats lhs, UsageStats rhs) {
+                    return (lhs.getLastTimeUsed() > rhs.getLastTimeUsed()) ? -1 : (lhs.getLastTimeUsed() == rhs.getLastTimeUsed()) ? 0 : 1;
+                }
+            }
+            RecentUseComparator mRecentComp = new RecentUseComparator();
+            long ts = System.currentTimeMillis();
+            UsageStatsManager mUsageStatsManager = (UsageStatsManager) this.getSystemService(Context.USAGE_STATS_SERVICE);
+            List<UsageStats> usageStats = mUsageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_BEST, ts - 1000 * 10, ts);
+            if (usageStats == null || usageStats.size() == 0) {
+                if (HavaPermissionForTest(this) == false) {
+                    Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    this.startActivity(intent);
+                    Toast.makeText(this, "权限不够\n请打开手机设置，点击安全-高级，在有权查看使用情况的应用中，为这个App打上勾", Toast.LENGTH_SHORT).show();
+                }
+                return lastApp;
+            }
+            Collections.sort(usageStats, mRecentComp);
+            String currentTopPackage = usageStats.get(0).getPackageName();
+            return currentTopPackage;
         }
+//        ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+//        String runningActivity = activityManager.getRunningTasks(1).get(0).topActivity.getPackageName();
+//        return runningActivity;
     }
 
     //设置相关参数
@@ -348,5 +413,18 @@ public class DeamonService extends Service {
 
         }
 
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    private static boolean HavaPermissionForTest(Context context) {
+        try {
+            PackageManager packageManager = context.getPackageManager();
+            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), 0);
+            AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+            int mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, applicationInfo.uid, applicationInfo.packageName);
+            return (mode == AppOpsManager.MODE_ALLOWED);
+        } catch (PackageManager.NameNotFoundException e) {
+            return true;
+        }
     }
 }
