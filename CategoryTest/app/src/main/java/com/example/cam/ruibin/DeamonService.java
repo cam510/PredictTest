@@ -14,7 +14,9 @@ import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
@@ -241,7 +243,16 @@ public class DeamonService extends Service {
                     Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     this.startActivity(intent);
-                    Toast.makeText(this, "权限不够\n请打开手机设置，点击安全-高级，在有权查看使用情况的应用中，为这个App打上勾", Toast.LENGTH_SHORT).show();
+                    Looper looper = Looper.getMainLooper();
+                    Handler handler = new Handler(looper);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(DeamonService.this,
+                                    "权限不够\n请打开手机设置，点击安全-高级，在有权查看使用情况的应用中，为这个App打上勾",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
                 return lastApp;
             }
