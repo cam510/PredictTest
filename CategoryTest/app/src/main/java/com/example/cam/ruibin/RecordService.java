@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.provider.Settings;
+import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
@@ -53,7 +54,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RecordService extends NotificationServer {
+public class RecordService extends NotificationListenerService {
     SensorManager sm;
     Sensor ligthSensor;
     Sensor accSensor;
@@ -77,17 +78,17 @@ public class RecordService extends NotificationServer {
         i.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
         context.startService(i);
     }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
+//
+//    @Override
+//    public IBinder onBind(Intent intent) {
+//        return null;
+//    }
 
     @Override
     public void onCreate() {
         super.onCreate();
         L.i("RecordService.onCreate");
-
+        System.out.println("oncreate");
         sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         ligthSensor = sm.getDefaultSensor(Sensor.TYPE_LIGHT);
         accSensor = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -145,26 +146,26 @@ public class RecordService extends NotificationServer {
             }
         }).start();
 
-        Intent intent = new Intent(this, DeamonService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+//        Intent intent = new Intent(this, DeamonService.class);
+//        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
-    private ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            L.i("RecordService.onServiceConnected");
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            L.i("RecordService.onServiceDisconnected");
-        }
-    };
+//    private ServiceConnection mConnection = new ServiceConnection() {
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder service) {
+//            L.i("RecordService.onServiceConnected");
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName name) {
+//            L.i("RecordService.onServiceDisconnected");
+//        }
+//    };
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         L.i("RecordService.onStartCommand");
-        return super.onStartCommand(intent, flags, startId);
+        return super.onStartCommand(intent, START_STICKY, startId);
     }
 
     @Override
@@ -174,7 +175,7 @@ public class RecordService extends NotificationServer {
 
         sm.unregisterListener(lightListener);
         sm.unregisterListener(accListener);
-        unbindService(mConnection);
+//        unbindService(mConnection);
     }
 
     //获取当前运行应用
@@ -419,40 +420,32 @@ public class RecordService extends NotificationServer {
         }
     }
 
-    //接受消息
+    //通知栏收到通知
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
-//        super.onNotificationPosted(sbn);
+        System.out.println("open" + "-----" + sbn.toString());
         if (lastNotificaApp.equals(sbn.getPackageName())) {
             //防止重复多次查询重复app
         } else {
             lastNotificaApp = sbn.getPackageName();
-            //屏幕关闭时候收到通知判定是否需要预加载app
-//            if (!isScreenOn && MyApplication.getmDbHelper().getIntimate(sbn.getPackageName()) > 70) {
-//                System.out.println("intimate > 70 app " + lastNotificaApp);
-////                ActivityUtil.launcherPredictApp(getApplicationContext(), mHandler, lastNotificaApp, lastApp);
-//            }
-            if (!sbn.getPackageName().contains("systemui")) {
-                if (myReceiveNotification.get(sbn.getPackageName()) == null) {
-                    ReceviceObject recevice = new ReceviceObject(sbn.getPackageName(), System.currentTimeMillis());
-                    myReceiveNotification.put(sbn.getPackageName(), recevice);
-                } else {
-                    ReceviceObject recevice = myReceiveNotification.get(sbn.getPackageName());
-                    int count = recevice.getReceviceCount();
-                    count++;
-                    recevice.setReceviceCount(count);
-                    recevice.setReceviceTime(System.currentTimeMillis());
-                    myReceiveNotification.put(sbn.getPackageName(), recevice);
-                }
+            if (myReceiveNotification.get(sbn.getPackageName()) == null) {
+                ReceviceObject recevice = new ReceviceObject(sbn.getPackageName(), System.currentTimeMillis());
+                myReceiveNotification.put(sbn.getPackageName(), recevice);
+            } else {
+                ReceviceObject recevice = myReceiveNotification.get(sbn.getPackageName());
+                int count = recevice.getReceviceCount();
+                count++;
+                recevice.setReceviceCount(count);
+                recevice.setReceviceTime(System.currentTimeMillis());
+                myReceiveNotification.put(sbn.getPackageName(), recevice);
             }
         }
     }
 
-    //去除消息
 
+    //通知栏移除通知
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
-//        super.onNotificationRemoved(sbn);
         System.out.println("shut" + "-----" + sbn.toString());
         if (!sbn.getPackageName().contains("systemui")) {
             if (myReceiveNotification.get(sbn.getPackageName()) != null) {
@@ -462,13 +455,9 @@ public class RecordService extends NotificationServer {
                 //收到通知5分钟内打开亲密度+1
                 if (duration <= 5
                         && getRunningAppPackName().equalsIgnoreCase(sbn.getPackageName())) {
-//                    System.out.println("enter add 亲密度");
-//                    MyApplication.getmDbHelper().updateIntimate(MyApplication.getmDbHelper().getWritableDatabase(), recevice, true);
                     MyApplication.getmDbHelper().insertNewRecored(MyApplication.getmDbHelper().getWritableDatabase()
                             , sbn.getPackageName(), this, lightListener.getLux(), accListener.getmAcc(), 1);
-                } else if (duration <= 10){
-//                    System.out.println("enter add 接收次数");
-//                    MyApplication.getmDbHelper().updateIntimate(MyApplication.getmDbHelper().getWritableDatabase(), recevice, false);
+                } else if (duration <= 10) {
                     MyApplication.getmDbHelper().insertNewRecored(MyApplication.getmDbHelper().getWritableDatabase()
                             , sbn.getPackageName(), this, lightListener.getLux(), accListener.getmAcc(), 2);
                 } else {
@@ -479,5 +468,4 @@ public class RecordService extends NotificationServer {
             }
         }
     }
-
 }

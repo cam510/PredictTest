@@ -18,12 +18,12 @@ public class AlarmReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         L.i("AlarmReceiver.onReceive: action=" + intent.getAction());
 
-        RecordService.start(context);
+//        RecordService.start(context);
 
-        Intent i = new Intent(context, AlarmReceiver.class);
-        i.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-        PendingIntent pi = PendingIntent.getBroadcast(context, PendingIntent.FLAG_UPDATE_CURRENT, i, PendingIntent.FLAG_CANCEL_CURRENT);
-        AlarmManager localAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        localAlarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 270000, pi);
+//        Intent i = new Intent(context, AlarmReceiver.class);
+//        i.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+//        PendingIntent pi = PendingIntent.getBroadcast(context, PendingIntent.FLAG_UPDATE_CURRENT, i, PendingIntent.FLAG_CANCEL_CURRENT);
+//        AlarmManager localAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+//        localAlarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 270000, pi);
     }
 }

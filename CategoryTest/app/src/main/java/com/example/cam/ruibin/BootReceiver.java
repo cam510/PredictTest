@@ -12,7 +12,9 @@ public class BootReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         L.i("BootReceiver.onReceive: action=" + intent.getAction());
 
-        Intent i = new Intent(context, DeamonService.class);
+//        Intent i = new Intent(context, DeamonService.class);
+//        context.startService(i);
+        Intent i = new Intent(context, RecordService.class);
         context.startService(i);
     }
 }

@@ -45,7 +45,7 @@ public class NotificationServer extends NotificationListenerService {
     @Override
     public void onCreate() {
         super.onCreate();
-        registerScreenBroadcast();
+//        registerScreenBroadcast();
         System.out.println("onCreate NotificationServer");
 
         mLocClient = MyApplication.mLocationClient;

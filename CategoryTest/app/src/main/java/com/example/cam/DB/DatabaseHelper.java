@@ -36,7 +36,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private String LOG_TAG = "PredictDB";
     private final static String DB_NAME = "predict";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     //创建app表
     private String CREATE_APP_TABLE = "CREATE TABLE IF NOT EXISTS " +
@@ -121,17 +121,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + TableIndex.NewRecore.USE_SECOND + " LONG DEFAULT 0, "
             + TableIndex.NewRecore.LOCATION_LA + " DOUBLE DEFAULT 0, "
             + TableIndex.NewRecore.LOCATION_LO + " DOUBLE DEFAULT 0,"
-            + TableIndex.NewRecore.IS_WORK + " INTEGER DEFAULT 0,"
-            + TableIndex.NewRecore.GPRS + " INTEGER DEFAULT 0,"
+            + TableIndex.NewRecore.IS_WORK + " TEXT DEFAULT NULL,"
+            + TableIndex.NewRecore.GPRS + " TEXT DEFAULT NULL,"
             + TableIndex.NewRecore.WIFI + " TEXT DEFAULT NULL,"
-            + TableIndex.NewRecore.BLUETOOTH + " INTEGER DEFAULT 0,"
+            + TableIndex.NewRecore.BLUETOOTH + " TEXT DEFAULT NULL,"
             + TableIndex.NewRecore.WEEKDAY + " TEXT DEFAULT NULL,"
             + TableIndex.NewRecore.HEADPHONE + " INTEGER DEFAULT NULL,"
-            + TableIndex.NewRecore.LIGHT_SENSOR + " Float DEFAULT 0,"
-            + TableIndex.NewRecore.ACC_SENSOR_X + " Float DEFAULT 0,"
-            + TableIndex.NewRecore.ACC_SENSOR_Y + " Float DEFAULT 0,"
-            + TableIndex.NewRecore.ACC_SENSOR_Z + " Float DEFAULT 0,"
-            + TableIndex.NewRecore.Notification + " INTEGER DEFAULT 0"
+            + TableIndex.NewRecore.LIGHT_SENSOR + " TEXT DEFAULT NULL,"
+            + TableIndex.NewRecore.ACTION + " TEXT DEFAULT NULL,"
+            + TableIndex.NewRecore.Notification + " TEXT DEFAULT NULL"
             + " )";
 
     public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
@@ -156,7 +154,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        db.execSQL("drop table if exists " + TableIndex.NewRecore.TABLE_NAME);
+        db.execSQL(CREATE_NEWRECORE_TABLE);
     }
 
     //判断是否存在表
@@ -412,7 +411,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 cv.put(TableIndex.Session.NEXT_APP, packName);
                 getWritableDatabase().update(getSessionTableName(), cv,
                         " " + TableIndex.Session.ID + " = ? ", new String[] {String.valueOf(id)});
+                break;
             }
+            cr.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
@@ -781,6 +782,61 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } else {
             isWork = 0;
         }
+        String weekdayString = "monday";
+        switch (weekday) {
+            case 2:
+                weekdayString = "tueday";
+                break;
+            case 3:
+                weekdayString = "wednesday";
+                break;
+            case 4:
+                weekdayString = "thurday";
+                break;
+            case 5:
+                weekdayString = "friday";
+                break;
+            case 6:
+                weekdayString = "saturday";
+                break;
+            case 7:
+                weekdayString = "sunday";
+                break;
+        }
+        String luxString = "";
+        if (lux < 50) {
+            luxString = "very_drak";
+        } else if (lux < 100) {
+            luxString = "drak";
+        } else if (lux < 150) {
+            luxString = "light";
+        } else {
+            luxString = "very_light";
+        }
+
+        String action = "";
+        int action_int= (int) Math.sqrt(acc[0] * acc[0] + acc[1] * acc[1] + acc[2] * acc[2]);
+        if (action_int <= 9) {
+            action = "idle";
+        } else if (action_int <= 10) {
+            action = "move";
+        } else if (action_int <= 11) {
+            action = "run";
+        } else {
+            action = "car";
+        }
+        String notificationString = "null";
+        switch (notification) {
+            case 1:
+                notificationString = "urge";
+                break;
+            case 2:
+                notificationString = "middle";
+                break;
+            case 3:
+                notificationString = "ignore";
+                break;
+        }
         int headPhone = 0;
         AudioManager localAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         headPhone = localAudioManager.isWiredHeadsetOn() ? 1 : 0;
@@ -790,19 +846,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cv.put(TableIndex.NewRecore.USE_PERIOD, DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())]);
         cv.put(TableIndex.NewRecore.LOCATION_LA, MyApplication.mLastLatitude);
         cv.put(TableIndex.NewRecore.LOCATION_LO, MyApplication.mLastLongtitude);
-        cv.put(TableIndex.NewRecore.IS_WORK, isWork);
-        cv.put(TableIndex.NewRecore.GPRS, NetworkUtil.isGprsConnected(context));
+        cv.put(TableIndex.NewRecore.IS_WORK, isWork == 1 ? "yes" : "no");
+        cv.put(TableIndex.NewRecore.GPRS, NetworkUtil.isGprsConnected(context) == 1 ? "yes" : "no");
         if (NetworkUtil.isWifiConnected(context) == 1) {
             cv.put(TableIndex.NewRecore.WIFI, NetworkUtil.getWifiSSID(context));
         }
-        cv.put(TableIndex.NewRecore.BLUETOOTH, NetworkUtil.getBluetoothState(context));
-        cv.put(TableIndex.NewRecore.WEEKDAY, weekday);
-        cv.put(TableIndex.NewRecore.HEADPHONE, headPhone);
-        cv.put(TableIndex.NewRecore.LIGHT_SENSOR, lux);
-        cv.put(TableIndex.NewRecore.ACC_SENSOR_X, acc[0]);
-        cv.put(TableIndex.NewRecore.ACC_SENSOR_Y, acc[1]);
-        cv.put(TableIndex.NewRecore.ACC_SENSOR_Z, acc[2]);
-        cv.put(TableIndex.NewRecore.Notification, notification);
+        cv.put(TableIndex.NewRecore.BLUETOOTH, NetworkUtil.getBluetoothState(context) == 1 ? "yes" : "no");
+        cv.put(TableIndex.NewRecore.WEEKDAY, weekdayString);
+        cv.put(TableIndex.NewRecore.HEADPHONE, headPhone == 1 ? "yes" : "no");
+        cv.put(TableIndex.NewRecore.LIGHT_SENSOR, luxString);
+        cv.put(TableIndex.NewRecore.ACTION, action);
+        cv.put(TableIndex.NewRecore.Notification, notificationString);
         db.insert(TableIndex.NewRecore.TABLE_NAME, null, cv);
     }
 
@@ -818,17 +872,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + " " + cursor.getLong(cursor.getColumnIndex(TableIndex.NewRecore.USE_SECOND))
                 + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LA))
                 + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LO))
-                + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.IS_WORK))
-                + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.GPRS))
+                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.IS_WORK))
+                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.GPRS))
                 + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.WIFI))
-                + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.BLUETOOTH))
+                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.BLUETOOTH))
                 + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.WEEKDAY))
-                + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.HEADPHONE))
-                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LIGHT_SENSOR))
-                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_X))
-                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_Y))
-                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_Z))
-                + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.Notification))
+                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.HEADPHONE))
+                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.LIGHT_SENSOR))
+                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.ACTION))
+                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.Notification))
                 );
             }
         }
@@ -871,17 +923,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                                 + " " + cursor.getLong(cursor.getColumnIndex(TableIndex.NewRecore.USE_SECOND))
                                 + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LA))
                                 + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LO))
-                                + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.IS_WORK))
-                                + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.GPRS))
+                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.IS_WORK))
+                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.GPRS))
                                 + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.WIFI))
-                                + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.BLUETOOTH))
+                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.BLUETOOTH))
                                 + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.WEEKDAY))
-                                + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.HEADPHONE))
-                                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LIGHT_SENSOR))
-                                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_X))
-                                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_Y))
-                                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_Z))
-                                + " " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.Notification))
+                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.HEADPHONE))
+                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.LIGHT_SENSOR))
+                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.ACTION))
+                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.Notification))
                 );
                 sb.append("the data -> ");
                 sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.PACKAGE_NAME)));
@@ -890,17 +940,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_SECOND)));
                 sb.append(" " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LA)));
                 sb.append(" " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LO)));
-                sb.append(" " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.IS_WORK)));
-                sb.append(" " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.GPRS)));
+                sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.IS_WORK)));
+                sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.GPRS)));
                 sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.WIFI)));
-                sb.append(" " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.BLUETOOTH)));
+                sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.BLUETOOTH)));
                 sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.WEEKDAY)));
-                sb.append(" " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.HEADPHONE)));
-                sb.append(" " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LIGHT_SENSOR)));
-                sb.append(" " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_X)));
-                sb.append(" " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_Y)));
-                sb.append(" " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.ACC_SENSOR_Z)));
-                sb.append(" " + cursor.getInt(cursor.getColumnIndex(TableIndex.NewRecore.Notification)));
+                sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.HEADPHONE)));
+                sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.LIGHT_SENSOR)));
+                sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.ACTION)));
+                sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.Notification)));
                 sb.append("\r\n");
             }
         }

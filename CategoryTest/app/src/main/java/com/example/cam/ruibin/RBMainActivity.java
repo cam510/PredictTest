@@ -13,9 +13,9 @@ public class RBMainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 //        setContentView(R.layout.activity_main);
-        startService(new Intent(getApplicationContext(), RecoreServer.class));
+        startService(new Intent(getApplicationContext(), RecordService.class));
         Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
         startActivity(intent);
-        DeamonService.start(this);
+//        DeamonService.start(this);
     }
 }
