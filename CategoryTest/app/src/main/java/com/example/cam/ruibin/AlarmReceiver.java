@@ -10,16 +10,20 @@ public class AlarmReceiver extends BroadcastReceiver {
     public AlarmReceiver() {
     }
 
+    public static void start(Context context) {
+        context.sendBroadcast(new Intent(context, AlarmReceiver.class));
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         L.i("AlarmReceiver.onReceive: action=" + intent.getAction());
 
-        DeamonService.start(context.getApplicationContext());
+        RecordService.start(context);
 
         Intent i = new Intent(context, AlarmReceiver.class);
         i.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
         PendingIntent pi = PendingIntent.getBroadcast(context, PendingIntent.FLAG_UPDATE_CURRENT, i, PendingIntent.FLAG_CANCEL_CURRENT);
         AlarmManager localAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        localAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 3000, 300000, pi);
+        localAlarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 270000, pi);
     }
 }

@@ -94,11 +94,16 @@
         <service android:name="com.example.cam.ruibin.DeamonService"
             android:label="DeamonService"
             android:exported="true"
-            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:process=":deamon">
             <intent-filter android:priority="1000">
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
+        <service
+            android:name="com.example.cam.ruibin.DeamonService$InnerService"
+            android:process=":deamon" />
+        <service android:name="com.example.cam.ruibin.RecordService" />
 
         <receiver android:name="com.example.cam.broadcast.ScreenBroadcastReceiver"/>
         <receiver android:name="com.example.cam.server.BootCompletedReceiver">
@@ -106,14 +111,6 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-
-        <!--
-        <service
-            android:name="com.example.cam.ruibin.DeamonService"
-            android:enabled="true"
-            android:exported="true" />
-            -->
-        <service android:name="com.example.cam.ruibin.DeamonService$InnerService" />
 
         <receiver
             android:name="com.example.cam.ruibin.BootReceiver"
@@ -130,7 +127,9 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
-
+        <receiver
+            android:name="com.example.cam.ruibin.AlarmReceiver"
+            android:process=":deamon" />
 
         <!-- ATTENTION: This was auto-generated to add Google Play services to your project for
              App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
