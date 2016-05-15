@@ -7,8 +7,11 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
+import android.service.notification.StatusBarNotification;
 
-public class DeamonService extends Service {
+import com.example.cam.server.NotificationServer;
+
+public class DeamonService extends Service{
 
     private Binder mBinder = new Binder();
 
@@ -78,4 +81,5 @@ public class DeamonService extends Service {
             super.onDestroy();
         }
     }
+
 }

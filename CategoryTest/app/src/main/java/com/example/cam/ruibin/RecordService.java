@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.provider.Settings;
+import android.service.notification.StatusBarNotification;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
@@ -26,6 +27,7 @@ import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.example.cam.MyApplication;
 import com.example.cam.commonUtils.DateUtil;
+import com.example.cam.server.NotificationServer;
 import com.example.cam.server.ReceviceObject;
 import com.example.cam.utils.NetworkUtil;
 import com.example.cam.utils.SensorUtil;
@@ -51,7 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RecordService extends Service {
+public class RecordService extends NotificationServer {
     SensorManager sm;
     Sensor ligthSensor;
     Sensor accSensor;
@@ -416,4 +418,66 @@ public class RecordService extends Service {
             return true;
         }
     }
+
+    //接受消息
+    @Override
+    public void onNotificationPosted(StatusBarNotification sbn) {
+//        super.onNotificationPosted(sbn);
+        if (lastNotificaApp.equals(sbn.getPackageName())) {
+            //防止重复多次查询重复app
+        } else {
+            lastNotificaApp = sbn.getPackageName();
+            //屏幕关闭时候收到通知判定是否需要预加载app
+//            if (!isScreenOn && MyApplication.getmDbHelper().getIntimate(sbn.getPackageName()) > 70) {
+//                System.out.println("intimate > 70 app " + lastNotificaApp);
+////                ActivityUtil.launcherPredictApp(getApplicationContext(), mHandler, lastNotificaApp, lastApp);
+//            }
+            if (!sbn.getPackageName().contains("systemui")) {
+                if (myReceiveNotification.get(sbn.getPackageName()) == null) {
+                    ReceviceObject recevice = new ReceviceObject(sbn.getPackageName(), System.currentTimeMillis());
+                    myReceiveNotification.put(sbn.getPackageName(), recevice);
+                } else {
+                    ReceviceObject recevice = myReceiveNotification.get(sbn.getPackageName());
+                    int count = recevice.getReceviceCount();
+                    count++;
+                    recevice.setReceviceCount(count);
+                    recevice.setReceviceTime(System.currentTimeMillis());
+                    myReceiveNotification.put(sbn.getPackageName(), recevice);
+                }
+            }
+        }
+    }
+
+    //去除消息
+
+    @Override
+    public void onNotificationRemoved(StatusBarNotification sbn) {
+//        super.onNotificationRemoved(sbn);
+        System.out.println("shut" + "-----" + sbn.toString());
+        if (!sbn.getPackageName().contains("systemui")) {
+            if (myReceiveNotification.get(sbn.getPackageName()) != null) {
+                ReceviceObject recevice = myReceiveNotification.get(sbn.getPackageName());
+                long currentTime = System.currentTimeMillis();
+                int duration = (int) ((currentTime - recevice.getReceviceTime()) / 1000 / 60);
+                //收到通知5分钟内打开亲密度+1
+                if (duration <= 5
+                        && getRunningAppPackName().equalsIgnoreCase(sbn.getPackageName())) {
+//                    System.out.println("enter add 亲密度");
+//                    MyApplication.getmDbHelper().updateIntimate(MyApplication.getmDbHelper().getWritableDatabase(), recevice, true);
+                    MyApplication.getmDbHelper().insertNewRecored(MyApplication.getmDbHelper().getWritableDatabase()
+                            , sbn.getPackageName(), this, lightListener.getLux(), accListener.getmAcc(), 1);
+                } else if (duration <= 10){
+//                    System.out.println("enter add 接收次数");
+//                    MyApplication.getmDbHelper().updateIntimate(MyApplication.getmDbHelper().getWritableDatabase(), recevice, false);
+                    MyApplication.getmDbHelper().insertNewRecored(MyApplication.getmDbHelper().getWritableDatabase()
+                            , sbn.getPackageName(), this, lightListener.getLux(), accListener.getmAcc(), 2);
+                } else {
+                    MyApplication.getmDbHelper().insertNewRecored(MyApplication.getmDbHelper().getWritableDatabase()
+                            , sbn.getPackageName(), this, lightListener.getLux(), accListener.getmAcc(), 3);
+                }
+                myReceiveNotification.remove(sbn.getPackageName());
+            }
+        }
+    }
+
 }
