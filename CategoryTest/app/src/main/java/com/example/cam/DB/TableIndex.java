@@ -96,5 +96,8 @@ public class TableIndex {
         public final static String WEEKDAY = "Weekday";              //记录星期几
         public final static String HEADPHONE = "Head_Phone";          //是否有耳机
         public final static String ACTION = "action";          //是否有耳机
+        public final static String DAY_OF_YEAR = "day_of_year";          //是否有耳机
+        public final static String EVENT = "event";                //事件
+        public final static String DATA1 = "data1";                //取值视不同事件而定
     }
 }

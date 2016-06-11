@@ -36,7 +36,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private String LOG_TAG = "PredictDB";
     private final static String DB_NAME = "predict";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 4;
 
     //创建app表
     private String CREATE_APP_TABLE = "CREATE TABLE IF NOT EXISTS " +
@@ -129,7 +129,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + TableIndex.NewRecore.HEADPHONE + " INTEGER DEFAULT NULL,"
             + TableIndex.NewRecore.LIGHT_SENSOR + " TEXT DEFAULT NULL,"
             + TableIndex.NewRecore.ACTION + " TEXT DEFAULT NULL,"
-            + TableIndex.NewRecore.Notification + " TEXT DEFAULT NULL"
+            + TableIndex.NewRecore.Notification + " TEXT DEFAULT NULL,"
+            + TableIndex.NewRecore.EVENT + " TEXT DEFAULT NULL,"
+            + TableIndex.NewRecore.DATA1 + " TEXT DEFAULT NULL,"
+            + TableIndex.NewRecore.DAY_OF_YEAR + " TEXT DEFAULT NULL"
             + " )";
 
     public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
@@ -403,7 +406,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.insert(getSessionTableName(), null, cv);
             Cursor cr = db.query(getSessionTableName(), null, null, null, null, null, null);
             //update last id NextApp
-            while (cr != null && cr.getCount() > 1) {
+            if (cr != null && cr.getCount() > 1) {
                 cr.moveToLast();
                 int id = cr.getInt(cr.getColumnIndex(TableIndex.Session.ID));
                 id--;
@@ -411,7 +414,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 cv.put(TableIndex.Session.NEXT_APP, packName);
                 getWritableDatabase().update(getSessionTableName(), cv,
                         " " + TableIndex.Session.ID + " = ? ", new String[] {String.valueOf(id)});
-                break;
             }
             cr.close();
         } catch (Exception ex) {
@@ -777,6 +779,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         c.setTimeZone(TimeZone.getTimeZone("GMT+8:00"));
         int isWork = c.get(Calendar.DAY_OF_WEEK);
         int weekday = c.get(Calendar.DAY_OF_WEEK);
+        int day = c.get(Calendar.DAY_OF_YEAR);
         if (isWork == 6 || isWork == 7) {
             isWork = 1;
         } else {
@@ -794,7 +797,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 weekdayString = "thurday";
                 break;
             case 5:
-                weekdayString = "friday";
+                weekdayString = "fridNay";
                 break;
             case 6:
                 weekdayString = "saturday";
@@ -843,6 +846,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         cv.put(TableIndex.NewRecore.PACKAGE_NAME, packName);
         cv.put(TableIndex.NewRecore.USE_TIME, DateUtil.formatDateWithHourMinSecond(System.currentTimeMillis()));
+        cv.put(TableIndex.NewRecore.DAY_OF_YEAR, "" + day);
         cv.put(TableIndex.NewRecore.USE_PERIOD, DateUtil.dataArray[DateUtil.toHour(System.currentTimeMillis())]);
         cv.put(TableIndex.NewRecore.LOCATION_LA, MyApplication.mLastLatitude);
         cv.put(TableIndex.NewRecore.LOCATION_LO, MyApplication.mLastLongtitude);
@@ -881,6 +885,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.LIGHT_SENSOR))
                 + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.ACTION))
                 + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.Notification))
+                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.DAY_OF_YEAR))
+                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.EVENT))
+                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.DATA1))
                 );
             }
         }
@@ -932,6 +939,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                                 + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.LIGHT_SENSOR))
                                 + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.ACTION))
                                 + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.Notification))
+                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.DAY_OF_YEAR))
+                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.EVENT))
+                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.DATA1))
                 );
                 sb.append("the data -> ");
                 sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.PACKAGE_NAME)));
@@ -949,9 +959,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.LIGHT_SENSOR)));
                 sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.ACTION)));
                 sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.Notification)));
+                sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.DAY_OF_YEAR)));
+                sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.EVENT)));
+                sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.DATA1)));
                 sb.append("\r\n");
             }
         }
         return sb.toString();
+    }
+
+    public void insertTarger(String event, String data, float la, float lo) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableIndex.NewRecore.LOCATION_LA, la);
+        cv.put(TableIndex.NewRecore.LOCATION_LO, lo);
+        cv.put(TableIndex.NewRecore.EVENT, event);
+        cv.put(TableIndex.NewRecore.DATA1, data);
+        cv.put(TableIndex.NewRecore.PACKAGE_NAME, "insertTarget");
+        cv.put(TableIndex.NewRecore.USE_TIME, DateUtil.formatDateWithHourMinSecond(System.currentTimeMillis()));
+        getWritableDatabase().insert(TableIndex.NewRecore.TABLE_NAME, null, cv);
+
     }
 }

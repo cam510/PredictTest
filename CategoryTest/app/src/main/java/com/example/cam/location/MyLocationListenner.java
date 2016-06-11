@@ -7,6 +7,7 @@ import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.example.cam.MyApplication;
+import com.example.cam.broadcast.AllBroadcast;
 import com.example.cam.categorytest.LocationTypeActivity;
 import com.example.cam.categorytest.MyLanucher;
 import com.example.cam.predict.PredictUtil;
@@ -30,6 +31,8 @@ public class MyLocationListenner implements BDLocationListener {
 
     private String curPackName = "";
     private String lastLocation = "unkonow";
+    public static float lastLa = 0f;
+    public static float lastLo = 0f;
 
     private static Map<String, Integer> mLocationMap = new HashMap<String, Integer>() ;
 
@@ -51,8 +54,11 @@ public class MyLocationListenner implements BDLocationListener {
                 locationStr = getMaxLocation();
             }
         } else {
-            System.out.println("location is -> " + location.getAddrStr() + " lo -> "
-                    + location.getLongitude() + " la -> " + location.getLatitude());
+            float la = (float) location.getLatitude();
+            float lo = (float) location.getLongitude();
+            String add = location.getAddrStr();
+            System.out.println("location is -> " + add + " lo -> "
+                    + lo + " la -> " + la);
             locationStr = location.getAddrStr();
             lastLocation = locationStr;
 //            if (mLocationMap.get(locationStr) == null) {
@@ -65,7 +71,10 @@ public class MyLocationListenner implements BDLocationListener {
 //            MyApplication.mLastLatitude = location.getLatitude();
 //            MyApplication.mLastLongtitude = location.getLongitude();
             MyApplication.getmDbHelper().updateLocation(MyApplication.getmDbHelper().getWritableDatabase()
-                    , location.getLatitude(), location.getLongitude());
+                    , la, lo);
+            if (add != null && !add.equals("null") && !add.equals("")) {
+                locationChange((float)la, (float)lo);
+            }
         }
 //        MyApplication.getmDbHelper().insertSession(curPackName, locationStr);
         if (lastLocation == null || locationStr == null) {
@@ -76,9 +85,9 @@ public class MyLocationListenner implements BDLocationListener {
                 locationStr = "";
             }
         }
-        String getLocation = MyApplication.getmDbHelper().queryLocationType(locationStr);
-        if (getLocation == null
-                || getLocation.equals("")) {
+//        String getLocation = MyApplication.getmDbHelper().queryLocationType(locationStr);
+//        if (getLocation == null
+//                || getLocation.equals("")) {
 //            if (!MyApplication.getAppInstance().isDialogShow()) {
 //                MyApplication.getAppInstance().setIsDialogShow(true);
 //                Intent i = new Intent(MyApplication.getAppInstance(), LocationTypeActivity.class);
@@ -91,11 +100,12 @@ public class MyLocationListenner implements BDLocationListener {
 //            }
 //            MyApplication.getmDbHelper().insertSession(curPackName, MyApplication.getLocationType());
 //            System.out.println("enter if insertsession");
-        } else {
-            System.out.println("enter else insertsession");
+//        } else {
+//            System.out.println("enter else insertsession");
 //            MyApplication.getmDbHelper().insertSession(curPackName, MyApplication.getLocationType());
 //            PredictUtil.getmInstance(MyApplication.getAppInstance()).getSomeDataFromPackName(curPackName);
-        }
+//        }
+
         mLocationClient.stop();
 
     }
@@ -180,5 +190,16 @@ public class MyLocationListenner implements BDLocationListener {
     public void showDialog() {
 //        dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
 //        dialog.show();
+    }
+
+    private void locationChange(float la , float lo) {
+//        System.out.println("last la -> " + lastLa + " last lo -> " + lastLo + " la " + la + " lo " + lo);
+        if ((la - lastLa > 0.003 || la - lastLa < -0.003) && (lo - lastLo > 0.003 || lo - lastLo < -0.003)) {
+            //insert
+            System.out.println("enter the location " + (la - lastLa) + " " + (lo - lastLo));
+            MyApplication.getmDbHelper().insertTarger(AllBroadcast.EVENT_LOCATION, "", MyLocationListenner.lastLa, MyLocationListenner.lastLo);
+        }
+        lastLa = la;
+        lastLo = lo;
     }
 }

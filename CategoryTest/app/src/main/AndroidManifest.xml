@@ -26,6 +26,14 @@
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
+    // 管理蓝牙设备的权限
+
+    <uses-permission android:name="Android.permission.BLUETOOTH_ADMIN" />
+
+    // 使用蓝牙设备的权限
+
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+
     <application
         android:name="com.example.cam.MyApplication"
         android:allowBackup="true"
@@ -110,12 +118,13 @@
 
 
         <receiver android:name="com.example.cam.broadcast.ScreenBroadcastReceiver"/>
+        <!--
         <receiver android:name="com.example.cam.server.BootCompletedReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-
+        -->
         <receiver
             android:name="com.example.cam.ruibin.BootReceiver"
             android:enabled="true"

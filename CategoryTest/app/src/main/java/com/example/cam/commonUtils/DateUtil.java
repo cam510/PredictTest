@@ -55,7 +55,7 @@ public class DateUtil {
     }
 
     public static String formatDateWithHourMinSecond(long date) {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
         return df.format(date);
     }
 

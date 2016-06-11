@@ -9,6 +9,7 @@ import android.app.usage.UsageStatsManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -27,6 +28,7 @@ import android.widget.Toast;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.example.cam.MyApplication;
+import com.example.cam.broadcast.AllBroadcast;
 import com.example.cam.commonUtils.DateUtil;
 import com.example.cam.server.NotificationServer;
 import com.example.cam.server.ReceviceObject;
@@ -72,6 +74,8 @@ public class RecordService extends NotificationListenerService {
     private long lastTime = 0L;
 
     private boolean needUpload = false;
+
+    private AllBroadcast broadcast = new AllBroadcast();
 
     public static void start(Context context) {
         Intent i = new Intent(context, RecordService.class);
@@ -148,6 +152,15 @@ public class RecordService extends NotificationListenerService {
 
 //        Intent intent = new Intent(this, DeamonService.class);
 //        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(AllBroadcast.ACTION_BLUETHOOD);
+        filter.addAction(AllBroadcast.ACTION_CHARGE);
+        filter.addAction(AllBroadcast.ACTION_CONNECTIVE);
+        filter.addAction(AllBroadcast.ACTION_HEADPHONE);
+        this.registerReceiver(broadcast, filter);
+//        MyApplication.getmDbHelper().getAllNewRecore();
+
     }
 
 //    private ServiceConnection mConnection = new ServiceConnection() {
@@ -175,6 +188,7 @@ public class RecordService extends NotificationListenerService {
 
         sm.unregisterListener(lightListener);
         sm.unregisterListener(accListener);
+        this.unregisterReceiver(broadcast);
 //        unbindService(mConnection);
     }
 
@@ -265,7 +279,7 @@ public class RecordService extends NotificationListenerService {
             System.out.println("thread begin upload -> ");
             String phone = android.os.Build.MANUFACTURER;
             TelephonyManager tm = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-            String deviceId = tm.getDeviceId();
+            String deviceId = tm.getDeviceId() + "_new";
             String data = MyApplication.getmDbHelper().outputAllNewRecore();
 //            String url = "http://120.24.65.236:8080/JCtest/index.jsp";
             String url = "http://120.24.65.236:8080/JCtest/saveLogAction.action";
