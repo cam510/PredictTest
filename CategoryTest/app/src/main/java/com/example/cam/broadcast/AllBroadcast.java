@@ -29,6 +29,7 @@ public class AllBroadcast extends BroadcastReceiver{
     public static final String EVENT_HEADPHONE = "AudioCable";
     public static final String EVENT_CHARGE = "ChargeCable";
     public static final String EVENT_LOCATION = "LocationChanged";
+    public static final String EVENT_LIGHT = "LightChanged";
 
     public AllBroadcast() {}
 

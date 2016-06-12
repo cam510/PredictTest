@@ -7,6 +7,9 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorListener;
 import android.hardware.SensorManager;
 
+import com.example.cam.MyApplication;
+import com.example.cam.broadcast.AllBroadcast;
+
 /**
  * Created by MoreSmart-PC007 on 2016/3/25.
  */
@@ -35,6 +38,8 @@ public class SensorUtil {
 
         private float lux = 0f;
 
+        private float lastLux = 0f;
+
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
         }
         public void onSensorChanged(SensorEvent event) {
@@ -42,7 +47,12 @@ public class SensorUtil {
 //            float acc = event.accuracy;
             //获取光线强度
             Lux = event.values[0];
-            lux = event.values[0];
+//            lux = event.values[0];
+            if (Lux - lastLux > 60 || Lux - lastLux < -60) {
+                System.out.println("enter light event");
+                MyApplication.getmDbHelper().insertTarger(AllBroadcast.EVENT_LIGHT, Lux - lastLux > 50 ? "lighter" : "draker", 0f, 0f);
+            }
+            lastLux = Lux;
         }
 
         public float getLux() {
