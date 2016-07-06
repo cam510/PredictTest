@@ -297,27 +297,27 @@ public class RecordService extends NotificationListenerService {
                 if (response.getStatusLine().toString().contains("200")) {
                     needUpload = false;
 
-                    HttpEntity httpEntity = response.getEntity();
-                    try
-                    {
-                        InputStream inputStream = httpEntity.getContent();
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(
-                                inputStream));
-                        String result = "";
-                        String line = "";
-                        while (null != (line = reader.readLine()))
-                        {
-                            result += line;
-
-                        }
-
-                        System.out.println(result);
-                        System.out.println("Response Content from server: " + result);
-                    }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                    }
+//                    HttpEntity httpEntity = response.getEntity();
+//                    try
+//                    {
+//                        InputStream inputStream = httpEntity.getContent();
+//                        BufferedReader reader = new BufferedReader(new InputStreamReader(
+//                                inputStream));
+//                        String result = "";
+//                        String line = "";
+//                        while (null != (line = reader.readLine()))
+//                        {
+//                            result += line;
+//
+//                        }
+//
+//                        System.out.println(result);
+//                        System.out.println("Response Content from server: " + result);
+//                    }
+//                    catch (Exception e)
+//                    {
+//                        e.printStackTrace();
+//                    }
 
                 } else {
                     needUpload = true;

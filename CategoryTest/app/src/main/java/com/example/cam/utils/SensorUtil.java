@@ -48,7 +48,7 @@ public class SensorUtil {
             //获取光线强度
             Lux = event.values[0];
 //            lux = event.values[0];
-            if (Lux - lastLux > 60 || Lux - lastLux < -60) {
+            if (Lux - lastLux > 1000 || Lux - lastLux < -1000) {
                 System.out.println("enter light event");
                 MyApplication.getmDbHelper().insertTarger(AllBroadcast.EVENT_LIGHT, Lux - lastLux > 50 ? "lighter" : "draker", 0f, 0f);
             }

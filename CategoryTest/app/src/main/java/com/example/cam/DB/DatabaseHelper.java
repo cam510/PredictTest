@@ -867,30 +867,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void getAllNewRecore() {
         Cursor cursor = this.getReadableDatabase().query(TableIndex.NewRecore.TABLE_NAME,
                 null, null, null, null, null, null);
-        if (cursor != null && cursor.getCount() > 0) {
-            while(cursor.moveToNext()) {
-                System.out.println("the data -> "
-                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.PACKAGE_NAME ))
-                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_TIME ))
-                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_PERIOD))
-                + " " + cursor.getLong(cursor.getColumnIndex(TableIndex.NewRecore.USE_SECOND))
-                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LA))
-                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LO))
-                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.IS_WORK))
-                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.GPRS))
-                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.WIFI))
-                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.BLUETOOTH))
-                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.WEEKDAY))
-                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.HEADPHONE))
-                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.LIGHT_SENSOR))
-                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.ACTION))
-                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.Notification))
-                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.DAY_OF_YEAR))
-                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.EVENT))
-                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.DATA1))
-                );
-            }
-        }
+//        if (cursor != null && cursor.getCount() > 0) {
+//            while(cursor.moveToNext()) {
+//                System.out.println("the data -> "
+//                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.PACKAGE_NAME ))
+//                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_TIME ))
+//                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_PERIOD))
+//                + " " + cursor.getLong(cursor.getColumnIndex(TableIndex.NewRecore.USE_SECOND))
+//                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LA))
+//                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LO))
+//                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.IS_WORK))
+//                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.GPRS))
+//                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.WIFI))
+//                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.BLUETOOTH))
+//                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.WEEKDAY))
+//                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.HEADPHONE))
+//                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.LIGHT_SENSOR))
+//                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.ACTION))
+//                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.Notification))
+//                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.DAY_OF_YEAR))
+//                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.EVENT))
+//                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.DATA1))
+//                );
+//            }
+//        }
     }
 
     public void updateSecond(SQLiteDatabase db, long second) {
@@ -923,28 +923,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         StringBuilder sb = new StringBuilder();
         if (cursor != null && cursor.getCount() > 0) {
             while (cursor.moveToNext()) {
-                System.out.println("the data -> "
-                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.PACKAGE_NAME))
-                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_TIME))
-                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_PERIOD))
-                                + " " + cursor.getLong(cursor.getColumnIndex(TableIndex.NewRecore.USE_SECOND))
-                                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LA))
-                                + " " + cursor.getFloat(cursor.getColumnIndex(TableIndex.NewRecore.LOCATION_LO))
-                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.IS_WORK))
-                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.GPRS))
-                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.WIFI))
-                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.BLUETOOTH))
-                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.WEEKDAY))
-                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.HEADPHONE))
-                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.LIGHT_SENSOR))
-                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.ACTION))
-                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.Notification))
-                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.DAY_OF_YEAR))
-                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.EVENT))
-                                + " " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.DATA1))
-                );
-                sb.append("the data -> ");
-                sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.PACKAGE_NAME)));
+//                sb.append("the data -> ");
+                sb.append(cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.PACKAGE_NAME)));
                 sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_TIME)));
                 sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_PERIOD)));
                 sb.append(" " + cursor.getString(cursor.getColumnIndex(TableIndex.NewRecore.USE_SECOND)));
